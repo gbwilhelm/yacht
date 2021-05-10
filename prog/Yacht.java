@@ -1,3 +1,4 @@
+package prog;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Arrays;
@@ -12,21 +13,14 @@ public class Yacht{
 
     //main game engine method, could be broken up into phase-based methods for readability
     public void playGame(){
-        //initialize game parameters
-        int numPlayers;
-        System.out.println("How many players (1-9)?");
-        numPlayers = getInput(1,9); //no need for large number of players
-
         //initialize round variables
-        System.out.println("Beginning game with "+numPlayers+" players!");
+        System.out.println("Welcome to Yacht!");
         //design choice to use array since all sizes are fixed.
         //ArrayList could have been used later for available scoring categories, but array is best for dice and scores
         Dice[] dice = new Dice[] {new Dice(),new Dice(),new Dice(),new Dice(),new Dice()};
-        int[][] scores = new int[numPlayers][13];
-        for(int a=0;a<numPlayers;a++){ //un-filled score is stored as -1, displayed as "-"
-            for(int b=0;b<scores[a].length;b++){
-                scores[a][b]=-1;
-            }
+        int[] scores = new int[13];
+        for(int b=0;b<scores.length;b++){//un-filled score is stored as -1, displayed as "-"
+            scores[b]=-1;
         }
         //main gameplay loop
         int rollCount=0;
@@ -38,8 +32,7 @@ public class Yacht{
             System.out.println("---------------------------------------");
             System.out.println("Round "+round+"\n");
             rollCount=0;
-            for(int player=0; player<numPlayers; player++){ //player turn
-                printScore(scores,player);
+            printScore(scores);
                 for(Dice d:dice){d.toRoll=true;d.fixed=false;}
                 rollCount=0;
                 while(rollCount<3){
@@ -51,7 +44,7 @@ public class Yacht{
                     if(rollCount<3 && !chooseDice(dice))break; //don't reroll if all dice are kept, cannot choose on last roll
                 }
                 diceValues = new int[] {dice[0].value,dice[1].value,dice[2].value,dice[3].value,dice[4].value};
-                categories = calculateRollOptions(diceValues,scores[player]);
+                categories = calculateRollOptions(diceValues,scores);
                 zeroFlag=false;
                 if(categories !=null){
                     System.out.println("Please choose a category to score in.\nAvailable options:");
@@ -61,7 +54,7 @@ public class Yacht{
                     categories = new boolean[13];
                     for(int a=0; a<categories.length; a++){
                         if(a==6)continue; //skip bonus category
-                        categories[a]=(scores[player][a]<0);
+                        categories[a]=(scores[a]<0);
                     }
                 }
                 //display available categories               
@@ -72,19 +65,18 @@ public class Yacht{
                 }
                 choice = getInputForScores(categories);
                 if(!zeroFlag){
-                    setScore(choice,calculateRollScore(choice,diceValues),scores[player]);
+                    setScore(choice,calculateRollScore(choice,diceValues),scores);
                 }else{
-                    setScore(choice,0,scores[player]);
+                    setScore(choice,0,scores);
                 }
-                if(player!=numPlayers-1)System.out.println();
-            }
         }
         //display final score
         System.out.println("---------------------------------------");
-        System.out.println("Final Scores:");
-        printScore(scores,-1);
+        System.out.println("Final Score:");
+        printScore(scores);
 
         //replay or exit
+//TODO: add prompt to save score to database, if yes then ask for player name and game title.
         System.out.println("Would you like to play again?\n\t1. Yes\n\t2. No");
         if(getInput(1,2)==1){
             System.out.println("\n\n\n\n");
@@ -336,42 +328,22 @@ public class Yacht{
         }
     }
 
-    //displays scores for a given player, -1 for all players
-    private void printScore(int[][] scores, int playerNum){
+    //displays scores for the player
+    private void printScore(int[] scores){
         int total=0;
-        if(playerNum==-1){ //print all players
-            for(int i=0; i<scores.length; i++){
-                System.out.print("Player "+(i+1)+". [");
-                total=0;
-                for(int j=0; j<scores[i].length; j++){
-                    if(j==6)System.out.print("(");
-                    if(scores[i][j]==-1){
-                        System.out.print("-");
-                    }else{
-                        System.out.print(scores[i][j]);
-                        total+=scores[i][j];
-                    }
-                    if(j==6)System.out.print(")");
-                    if(j!=scores[0].length-1)System.out.print(",");
-                }
-                System.out.println("]\tTotal:"+total);
+        System.out.print("Your Score. [");
+        for(int j=0; j<scores.length; j++){
+            if(j==6)System.out.print("(");
+            if(scores[j]==-1){
+                System.out.print("-");
+            }else{
+                System.out.print(scores[j]);
+                total+=scores[j];
             }
-        }else{ //print specific player
-            int i=playerNum;
-            System.out.print("Player "+(i+1)+". [");
-            for(int j=0; j<scores[i].length; j++){
-                if(j==6)System.out.print("(");
-                if(scores[i][j]==-1){
-                    System.out.print("-");
-                }else{
-                    System.out.print(scores[i][j]);
-                    total+=scores[i][j];
-                }
-                if(j==6)System.out.print(")");
-                if(j!=scores[0].length-1)System.out.print(",");
-            }
-            System.out.println("]\tTotal:"+total);
+            if(j==6)System.out.print(")");
+            if(j!=scores.length-1)System.out.print(",");
         }
+        System.out.println("]\tTotal:"+total);
     }
 
     //prints dice rolls with () for dice that have not yet been chosen
@@ -395,16 +367,7 @@ public class Yacht{
             yacht.playGame();
         }else{
             UnitTests tester = yacht.new UnitTests();
-            System.out.println("The following unit test categories are available:\n\tAll\n\tCategory Detection\n\tScore Calculation");
-            int i = yacht.getInput(1,3);
-            if(i==2){
-                tester.testCategoryDetection();
-            }else if(i==3){
-                tester.testScoreCalculation();
-            }else{
-                tester.testCategoryDetection();
-                tester.testScoreCalculation();
-            }
+            tester.testCategoryDetection();
         }
         
     }
@@ -568,19 +531,6 @@ public class Yacht{
                         if(result[10])System.out.print("ED OTHER CATEGORY");
                         System.out.println();
                     }
-        }
-        public void testScoreCalculation(){
-            System.out.println("TODO: needs implementation");
-            //Numeric scoring and fixed scoring are trivial; no tests needed
-            //Bonus Score
-                //test all 0s               <- min test
-                //test 62                   <- 1 less
-                //test 63                   <- threshold test
-                //test 64                   <- 1 more
-                //test max numeric score    <- max test
-            //Four-of-a-Kind - make sure it does not cound 5th match too
-                //one normal test
-                //one 5 of a kind edge case
         }
     }
 }

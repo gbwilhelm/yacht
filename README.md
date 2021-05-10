@@ -26,6 +26,8 @@ Categories:
 12. Choice: Sum of all dice
 13. Yacht: Five-of-a-Kind, 50 points
 
+NOTE: The player must score in a valid category before being allowed to zero a category
+
 ---UPDATE 5/10/2021
 
 I aim to incrementally deploy this finished program to AWS.
