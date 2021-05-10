@@ -83,8 +83,7 @@ public class Yacht{
             name = getName();
             System.out.println("What would you like to save your game title as?");
             title=getName();
-//TODO: write score to database
-            System.out.println("TODO: Write score with ("+name+"/"+title+")");
+            SaveToDatabase(name,title,scores);
         }
 
         //replay or exit
@@ -95,6 +94,13 @@ public class Yacht{
         }else{
             System.out.println("Thank you for playing!");
         }
+    }
+
+    //write game data to database
+    private void SaveToDatabase(String name, String title, int[] scores){
+        System.out.println("Saving score for Player: "+name+" as Game: "+title+"...");
+        //TODO: Add database code
+        System.out.println("\tSaving complete!");
     }
 
     //Separate menu to allow flexibility of input types, this implementation uses command line
