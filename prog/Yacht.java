@@ -12,7 +12,7 @@ public class Yacht{
     }
 
     //main game engine method, could be broken up into phase-based methods for readability
-    public void playGame(){
+    private void playGame(){
         //initialize round variables
         System.out.println("Welcome to Yacht!");
         //design choice to use array since all sizes are fixed.
@@ -75,8 +75,19 @@ public class Yacht{
         System.out.println("Final Score:");
         printScore(scores);
 
+        //save game
+        System.out.println("Would you like to save this game score?\n\t1. Yes\n\t2. No");
+        if(getInput(1,2)==1){
+            String name,title;
+            System.out.println("What would you like to save your name as?");
+            name = getName();
+            System.out.println("What would you like to save your game title as?");
+            title=getName();
+//TODO: write score to database
+            System.out.println("TODO: Write score with ("+name+"/"+title+")");
+        }
+
         //replay or exit
-//TODO: add prompt to save score to database, if yes then ask for player name and game title.
         System.out.println("Would you like to play again?\n\t1. Yes\n\t2. No");
         if(getInput(1,2)==1){
             System.out.println("\n\n\n\n");
@@ -88,12 +99,27 @@ public class Yacht{
 
     //Separate menu to allow flexibility of input types, this implementation uses command line
     //returns menu code for choice, input is checked for validity here
-    public int getInput(int minValue,int maxVal){
+    private int getInput(int minValue,int maxVal){
         int selection = 0;
         while(true){
             try{
                 selection = scanner.nextInt();
                 if(selection>=minValue && selection<=maxVal) return  selection;
+                System.out.println("Please try again...");
+            }catch(Exception e){
+                continue; //NOTE: Code does not handle invalid input well, no need to change bc web-version will have different input method
+            }
+        }
+    }
+
+    //Prompts user for a string, verifies value before returning
+    private String getName(){
+        String n="";
+        while(true){
+            try{
+                n = scanner.next();
+                System.out.println("Is \""+n+"\" correct? (Y/N)");
+                if(getInput(1,2)==1)return n;
                 System.out.println("Please try again...");
             }catch(Exception e){
                 continue;
@@ -362,14 +388,13 @@ public class Yacht{
     public static void main(String[] args){
         Yacht yacht = new Yacht();
         System.out.println("Welcome to Yacht, the dice game!\nWould you like to play the game, or run unit tests?"
-                                +"\n\t1. PlayGame\n\t2. Run Tests");
+                                +"\n\t1. Play Game\n\t2. Run Tests");
         if(yacht.getInput(1,2)==1){
             yacht.playGame();
         }else{
             UnitTests tester = yacht.new UnitTests();
             tester.testCategoryDetection();
         }
-        
     }
 //--------------------------------------------------------------------------------
     //value-flag pair wrapper
@@ -384,7 +409,7 @@ public class Yacht{
         //FAIL: result did not match expected for specific category
         //FAILED OTHER CATEGORY: result matched expected in the specific category, but not 100% match
             //unfortunately does not explain which other category failed - beyond scope of project
-        public void testCategoryDetection(){
+        private void testCategoryDetection(){
             int[] dice;
             boolean[] expected,result;
             int[] scores = new int[13];
