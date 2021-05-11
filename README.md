@@ -31,13 +31,16 @@ NOTE: The player must score in a valid category before being allowed to zero a c
 ---UPDATE 5/10/2021
 
 I aim to incrementally deploy this finished program to AWS.
+
+Note: The included AWS code is in Yacht_AWS.java, I will not include the entire build on this repository. The non-AWS version has no dependencies and can be run on any Java platform, however the AWS version is built using the AWS SDK in Eclipse.
+
 This will be done in the stages as follows:
 1. Modify core program in preparation
 	1. Initialize git repository
 	2. Only allow 1 player at a time
 	3. Prompt player name and game name at the end, allow option for no saving.
 2. Prepare database integration
-	1. Create SaveToDatabase method, allowing for different implementations.
+	1. Create saveToDatabase method, allowing for different implementations.
 	2. Use AWS Java SDK functions for writing to DynamoDB. Create and document schema.
 	3. OPTIONAL - use locally stored MongoDB
 3. Begin AWS migration
