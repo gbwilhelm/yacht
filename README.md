@@ -32,24 +32,16 @@ NOTE: The player must score in a valid category before being allowed to zero a c
 
 I aim to incrementally deploy this finished program to AWS.
 
+Currently, the Java program successfully writes to DynamoDB, which triggers a Lambda function. The Lambda function extracts the name of the player and score total of the game, then sends a formatted email to an SNS Topic.
+
 Note: The included AWS code is in Yacht_AWS.java, I will not include the entire build on this repository. The non-AWS version has no dependencies and can be run on any Java platform, however the AWS version is built using the AWS SDK in Eclipse.
 
-This will be done in the stages as follows:
-1. Modify core program in preparation
-	1. Initialize git repository
-	2. Only allow 1 player at a time
-	3. Prompt player name and game name at the end, allow option for no saving.
-2. Prepare database integration
-	1. Create saveToDatabase method, allowing for different implementations.
-	2. Use AWS Java SDK functions for writing to DynamoDB. Create and document schema.
-	3. OPTIONAL - use locally stored MongoDB
-3. Begin AWS migration
-	1. Clone Git repository on EC2 instance
-	2. Test DynamoDB functionallity from EC2
-4. Construct website version
+The remaining stages are as follows:
+1. Begin AWS migration
+	1. Transfer Java project to EC2, use git or S3
+	2. Modify initDatabaseObject() to work with IAM Role instead of saved access keys
+2. Construct website version
 	1. Port game to JavaScript if necessary
 	2. Use NGINX for hosting, Use AWS Route 53 for DNS registration
 	3. Use Vue.js for front-end integration, need input and output for game
 	4. Web page for playing game, web page for viewing database, search database by player name
-5. Back-end monitoring
-	1. Hook Lambda function on DynamoDB write, integrate with SES notification with target as environment variable
