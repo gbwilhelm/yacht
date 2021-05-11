@@ -1,6 +1,4 @@
 package com.amazonaws;
-import java.util.Random;
-import java.util.Scanner;
 
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -8,25 +6,28 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
-import com.amazonaws.services.dynamodbv2.model.TableDescription;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
 
+import java.util.Random;
+import java.util.Scanner;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 
 public class Yacht{
     private Random rand = new Random();
     private Scanner scanner = new Scanner(System.in);
     
     static AmazonDynamoDB dynamoDB;
+
+    static boolean DEBUG_MODE = true;  
     
     private enum e_categories{
         Ones,Twos,Threes,Fours,Fives,Sixes,Bonus,Full_House,Four_of_a_Kind,Little_Straight,Big_Straight,Choice,Yacht
@@ -50,6 +51,14 @@ public class Yacht{
         boolean[] categories=null;
         boolean zeroFlag=false;
         for(int round=0; round<12; round++){ //round loop
+        	if(DEBUG_MODE){
+        		System.out.println("DEBUG MODE ACTIVE... RANDOMIZING SCORE... SKIPPING TO SCORE CALCULATION...");
+        		for(int i=0; i<scores.length; i++) {
+        			scores[i] = rand.nextInt(61); //scores set to random (0,60) for each
+        		}
+        		round=12;
+        		continue;
+        	}
             System.out.println("---------------------------------------");
             System.out.println("Round "+round+"\n");
             rollCount=0;
@@ -119,7 +128,7 @@ public class Yacht{
 
     //AWS Toolkit sample code for initializing database object
     	//unsure if this is needed when deployed on EC2 using Role
-    private void initDatabase() throws Exception{
+    private void initDatabaseObject() throws Exception{
         ProfileCredentialsProvider credentialsProvider = new ProfileCredentialsProvider();
         try {
             credentialsProvider.getCredentials();
@@ -140,10 +149,20 @@ public class Yacht{
     private void saveToDatabase(String name, String title, int[] scores, int total){
         System.out.println("Saving score for Player:"+name+" as Game:"+title+"...");
         try {
-        	initDatabase();
+        	initDatabaseObject();
         	
 	        String tableName = "yacht-scores";
 
+	        //create new table with primary key as binary "key" with sort key as string "title", provision 1 r/w unit for cost effectiveness
+	        //table will be tagged and assigned a resource group in the Management Console
+	        /*CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
+	                .withKeySchema(new KeySchemaElement().withAttributeName("key").withKeyType(KeyType.HASH),
+	                		new KeySchemaElement().withAttributeName("title").withKeyType(KeyType.RANGE))
+	                .withAttributeDefinitions(new AttributeDefinition().withAttributeName("key").withAttributeType(ScalarAttributeType.B),
+	                		new AttributeDefinition().withAttributeName("title").withAttributeType(ScalarAttributeType.S))
+	                .withProvisionedThroughput(new ProvisionedThroughput().withReadCapacityUnits(1L).withWriteCapacityUnits(1L));
+	        TableUtils.createTableIfNotExists(dynamoDB, createTableRequest);*/
+	        
 	        // wait for the table to move into ACTIVE state
 	        TableUtils.waitUntilActive(dynamoDB, tableName);
 	            
@@ -158,9 +177,14 @@ public class Yacht{
         System.out.println("\tSaving complete!");
     }
     
-    //AWS snippet for helper data structure
-    private static Map<String, AttributeValue> newItem(String title, String name, int[] scores, int total) {
+    //modified AWS snippet for helper data structure
+    private static Map<String, AttributeValue> newItem(String title, String name, int[] scores, int total) throws Exception{
         Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
+        
+        //use MD5 hash of game title with player name and score as database key, this should allow for multiple entries with the same game name
+        ByteBuffer hash = ByteBuffer.wrap(MessageDigest.getInstance("MD5").digest((title+name+total).getBytes()));
+        
+        item.put("key", new AttributeValue().withB(hash.asReadOnlyBuffer()));
         item.put("title", new AttributeValue(title));
         item.put("name", new AttributeValue(name));
         item.put("total", new AttributeValue().withN(Integer.toString(total)));
