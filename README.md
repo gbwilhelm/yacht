@@ -1,6 +1,6 @@
 This project aims to refresh my Java programming skills by recreating the classic dice game, Yacht.
 
-The main algorithm consists of a parser that reads the result of the dice rolls to display the applicable scoring categories to the player, then compute the chosen score. A text-based interface is also used, which could be further extended to a gui or even an Android project as a further excercise.
+The main algorithm consists of a parser that reads the result of the dice rolls to display the applicable scoring categories to the player, then compute the chosen score. A text-based interface is also used, which could be further extended to a gui or even an Android project as a further exercise.
 
 The rules for Yacht were taken from Wikipedia: https://en.wikipedia.org/wiki/Yacht_(dice_game)
 
@@ -32,16 +32,16 @@ NOTE: The player must score in a valid category before being allowed to zero a c
 
 I aim to incrementally deploy this finished program to AWS.
 
-Currently, the Java program successfully writes to DynamoDB, which triggers a Lambda function. The Lambda function extracts the name of the player and score total of the game, then sends a formatted email to an SNS Topic.
+Currently, the Java program successfully writes to DynamoDB, which triggers a Lambda function (code included). The Lambda function extracts the name of the player and total score of the game, then sends a formatted email to an SNS Topic.
 
-Note: The included AWS code is in Yacht_AWS.java, I will not include the entire build on this repository. The non-AWS version has no dependencies and can be run on any Java platform, however the AWS version is built using the AWS SDK in Eclipse.
+Note: The AWS version source code is Yacht_AWS.java, I will not include the entire build on this repository. The non-AWS version has no dependencies and can be run on any Java platform, however the AWS version is built using the AWS SDK in Eclipse.
 
 The remaining stages are as follows:
-1. Begin AWS migration
-	1. Transfer Java project to EC2, use git or S3
-	2. Modify initDatabaseObject() to work with IAM Role instead of saved access keys
-2. Construct website version
-	1. Port game to JavaScript if necessary
-	2. Use NGINX for hosting, Use AWS Route 53 for DNS registration
-	3. Use Vue.js for front-end integration, need input and output for game
-	4. Web page for playing game, web page for viewing database, search database by player name
+1. Construct local web version
+	1. Construct skeleton website: About/Home, Game, Leaderboard pages
+	2. Convert Java to Javascript, integrate with front end via Vue
+2. Move project to AWS
+	1. Provision EC2 server, install NGINX and node.js
+	2. Upload project .zip to S3, download on EC2
+	3. Alter code to use AIM Role and not local access keys
+	4. Use AWS Route 53 for DNS registration
