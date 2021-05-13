@@ -1,0 +1,80 @@
+/* Color Scheme
+#b1b1ab - whited version of base
+#70709b - greyed version of base
+#47478d - base blue
+#2d2d80 - 1st compliment
+#181874 - 2nd compliment
+#060667 - 3rd compliment
+*/
+:root {
+    --w: #f7f7f1;
+    --white: #b1b1ab;
+    --gray: #70709b;
+    --blue_b: #47478d;
+    --blue_1c: #2d2d80;
+    --blue_2c: #181874;
+    --blue_3c: #060667;
+    --blue_1c_c: #9b8570;
+}
+
+#body {
+    /*color: var(--blue_3c);
+    background-color: var(--w);*/
+}
+
+#footer {
+    width: 100%;
+    text-align: center;
+}
+
+#footer a{
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    padding-left: 1em;
+    padding-right: 1em;
+    text-decoration: none;
+    background-color: var(--blue_3c);
+    color: var(--white);
+}
+
+#footer a:hover{
+  text-decoration: underline;
+  color: var(--blue_1c_c);
+}
+
+#pallet {
+    background-color: white;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    height: 104px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+#pallet svg{
+    border: 2px solid black;
+    width: 100px;
+    height: 100px;
+}
+#pallet rect{
+    stroke-width: 2px;
+    stroke: black;
+}
+#pallet #pal_a{
+    fill: var(--white);
+}
+#pal_b rect{
+    fill: var(--gray);
+}
+#pal_c rect{
+    fill: var(--blue_b);
+}
+#pal_d rect{
+    fill: var(--blue_1c);
+}
+#pal_e rect{
+    fill: var(--blue_2c);
+}
+#pal_f rect{
+    fill: var(--blue_3c);
+}
