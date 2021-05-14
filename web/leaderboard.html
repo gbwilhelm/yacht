@@ -9,17 +9,18 @@
 </head>
 <body>
   <div id=header>
-    <a href="index.html">Return Home</a>
-    <a href="game.html">Play Game</a>
+    <div id=siteNav>
+      <a href="index.html"><i class="fas fa-home"></i>  Home</a>
+      <a href="game.html"><i class="fas fa-gamepad"></i>  Game</a>
+      <a href="leaderboard.html"><i class="fas fa-chalkboard"></i>  Leaderboard</a>
+    </div>
+    <div id=ghub>
+      <a id=ghub href="https://github.com/gbwilhelm/yacht"><i class="fab fa-github"></i>  Source Code</a>
+    </div>
   </div>
-
   <div id="leaderboard">
     <h1>Yacht Leaderboard</h1>
     <p>The top 10 highest scores will be displayed here. Script will read from DynamoDB and format results for display.</p>
-  </div>
-
-  <div id=footer>
-    <a href="https://github.com/gbwilhelm/yacht"><b>GitHub Source Code</b></a>
   </div>
   <script src="leaderboard.js"></script>
 </body>

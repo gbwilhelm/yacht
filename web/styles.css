@@ -7,9 +7,9 @@
 #060667 - 3rd compliment
 */
 :root {
-    --w: #f7f7f1;
-    --white: #b1b1ab;
-    --gray: #70709b;
+    --white: #f7f7f1;
+    --gray: #b1b1ab;
+    --blue_l: #70709b;
     --blue_b: #47478d;
     --blue_1c: #2d2d80;
     --blue_2c: #181874;
@@ -17,54 +17,91 @@
     --blue_1c_c: #9b8570;
 }
 
+body {
+    margin: 0;
+    height: 100%;
+    display: block;
+    vertical-align: top;
+    background-color: var(--white);
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h2, p{
+    margin: 0;
+}
+
 #body {
-    /*color: var(--blue_3c);
-    background-color: var(--w);*/
-}
-
-#footer {
     width: 100%;
+    color: var(--blue_3c);
     text-align: center;
+    overflow: auto;
+    font-weight: 300;
 }
 
-#footer a{
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-    padding-left: 1em;
-    padding-right: 1em;
-    text-decoration: none;
+#header {
     background-color: var(--blue_3c);
+    width: 100%;
+    height: 2.1em;
+    padding-top: 1em;
+    display: inline-block;
+}
+
+#header a{
+    padding-left: 1em;
+    text-decoration: none;
     color: var(--white);
+    font-weight: 500;
 }
 
-#footer a:hover{
+#header a:hover{
   text-decoration: underline;
-  color: var(--blue_1c_c);
+  color: var(--gray);
 }
 
-#pallet {
+#siteNav {
+    float: left;
+    display: inline-block;
+}
+
+#ghub {
+    float: right;
+    display: inline-block;
+}
+
+#ghub a{
+    padding-right: 1em;
+}
+
+/*Color palette*/
+# {
     background-color: white;
     display: inline-block;
-    width: 100%;
+    width: 50%;
     text-align: center;
     height: 104px;
     padding-top: 10px;
     padding-bottom: 10px;
 }
-#pallet svg{
+#palette svg{
     border: 2px solid black;
     width: 100px;
     height: 100px;
 }
-#pallet rect{
+#palette rect{
     stroke-width: 2px;
     stroke: black;
 }
-#pallet #pal_a{
+#pal_a rect{
     fill: var(--white);
 }
 #pal_b rect{
     fill: var(--gray);
+}
+#pal_h rect{
+    fill: var(--blue_1c_c);
+}
+#pal_g rect{
+    fill: var(--blue_l);
 }
 #pal_c rect{
     fill: var(--blue_b);
