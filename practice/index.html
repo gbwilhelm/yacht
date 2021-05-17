@@ -21,7 +21,13 @@
     <h2>This Radio Button Toggles Text Visibility</h2>
     <input type="checkbox" v-model="visib_flag">Show Text?</input>
     <p v-if="visib_flag">This is secret text!</p>
+
+    <h2>Vue Reusable Component Demo</h2>
+    <button-counter v-on:changed-flag="flag_handler"></button-counter>
+    <p>Component's flag is set to: <strong>{{flag}}</strong></p>
+    <input-component v-on:changed-text="input_handler"></input-component>
+    <p>Your input: <strong>{{text}}</strong></p>
   </div>
-   <script src="prog.js"></script>
+  <script src="prog.js"></script>
 </body>
 </html>
