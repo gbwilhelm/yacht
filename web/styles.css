@@ -115,3 +115,23 @@ h1, h2, p{
 #pal_f rect{
     fill: var(--blue_3c);
 }
+
+/*Game css*/
+#gameTitle{ /*area above game window*/
+    text-align: center;
+    margin-top: 0.75em;
+}
+#game{ /*playable game area*/
+    background-color: white;
+    text-align: center;
+    border: 2px solid black;
+    width: 80%;
+    height: 50em;
+    margin-left: 10%;
+    /*margin-bottom: 3em;*/
+    margin-top: 2em;
+    overflow-y: auto;
+}
+#game img{
+    border: 1px solid black;
+}

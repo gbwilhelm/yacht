@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500&display=swap" rel="stylesheet">
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
+  <script src="game.js" defer></script>
 </head>
 <body>
   <div id=header>
@@ -21,10 +22,18 @@
       <a id=ghub href="https://github.com/gbwilhelm/yacht"><i class="fab fa-github"></i>  Source Code</a>
     </div>
   </div>
-  <div id="game">
-    <h1>Yacht Game</h1>
-    <p>Game will play here. Sections of the game will be used as Vue components swaped out when needed.</p>
+  <div id=gameTitle>
+    <h1 id=gameTitle>Yacht Game</h1>
   </div>
-  <script src="game.js"></script>
+  <div id="game">
+    <div id=textArea>
+      <p>GameState: <strong>{{gameState}}</strong></p>
+      <p>GameComponent: <strong>{{gameComponent}}</strong></p>
+      <br>
+      <component v-bind:is="gameComponent" v-on:start-game="startGame"></component>
+    </div>
+    <div id=displayArea></div>
+    <div id=inputArea><div>
+  </div>
 </body>
 </html>
