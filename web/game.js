@@ -24,24 +24,24 @@ Vue.component('game-main',{
       this.mainState = 1
       //run calculations on possible scores
     },
-    scoreConfirmed: function(score,category){
+    scoreConfirmed: function(choice,scores){
       this.mainState = 0
-      this.$emit("score-confirmed",score,category)
+      this.$emit("score-confirmed",choice)
       //start next roll after emit is done
-      console.log("main evoking rollDice()")
+      this.$refs.scoreboard.updateScores(scores)
       this.$refs.dice.rollDice()
     }
   },
   template: '<div>\
             <p>MAIN GAME LOOP...</p>\
             <p>mainState: {{mainState}}</p>\
-            <dice ref="dice" v-on:rolled="rolled" v-on:begin-scoring="beginScoring" v-on:score-confirmed="scoreConfirmed"></dice>\
+            <dice ref="dice" v-on:rolled="rolled" v-on:begin-scoring="beginScoring"></dice>\
+            <scoreCalculator ref="scoreCalculator" v-if="mainState===1" v-on:score-confirmed="scoreConfirmed"></scoreCalculator>\
             <scoreboard ref="scoreboard"></scoreboard>\
             </div>'
 })
 
 //component displays dice roll, also shows scoring categories, signals sent to game-main component
-//TODO: move logic for calculating scores into a separate component
 Vue.component('dice',{
   data: function(){
     return{
@@ -49,14 +49,7 @@ Vue.component('dice',{
       diceChosen: [false,false,false,false,false],
       diceLocked: [false,false,false,false,false],
       imgPaths: ["img/dice_1.png","img/dice_1.png","img/dice_1.png","img/dice_1.png","img/dice_1.png"],
-      imgIndex: 9, //index in imgPaths of the image number
-      possibleCategories: [], //available scoring categories
-      allCategories: [{name:'Ones',code:0,score:0},{name:'Twos',code:1,score:0},{name:'Threes',code:2,score:0}, //all categories
-                      {name:'Fours',code:3,score:0},{name:'Fives',code:4,score:0},{name:'Sixes',code:5,score:0},
-                      {name:'Full House',code:7,score:0},{name:'Four-of-a-Kind',code:8,score:0},{name:'Little Straight',code:9,score:0},
-                      {name:'Big Straight',code:10,score:0},{name:'Choice',code:11,score:0},{name:'Yacht',code:12,score:0}],
-      choice: "", //selected category
-      scores: [] //player's score array
+      imgIndex: 9 //index in imgPaths of the image number
     }
   },
   beforeMount(){
@@ -124,12 +117,42 @@ Vue.component('dice',{
         this.diceChosen[i] = false //deselect dice
       })
       this.rollDice() //prepare next roll
-    },
+    }
+  },
+  template: '<div id=diceComponent>\
+            <p>Your Roll</p>\
+            <p v-if="this.$parent.mainState===0">Choose which dice you want to keep, the rest will be rerolled.</p>\
+            <p v-if="this.$parent.mainState===1">Choose which category you want to score in.</p>\
+            <div id=diceImageContainer>\
+              <figure id=dice0 class=dice><img v-bind:src=imgPaths[0] width=100 height=100 v-on:click="toggleDice(0)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+              <figure id=dice1 class=dice><img v-bind:src=imgPaths[1] width=100 height=100 v-on:click="toggleDice(1)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+              <figure id=dice2 class=dice><img v-bind:src=imgPaths[2] width=100 height=100 v-on:click="toggleDice(2)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+              <figure id=dice3 class=dice><img v-bind:src=imgPaths[3] width=100 height=100 v-on:click="toggleDice(3)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+              <figure id=dice4 class=dice><img v-bind:src=imgPaths[4] width=100 height=100 v-on:click="toggleDice(4)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+            </div>\
+            <div id=diceComponentSub v-if="this.$parent.mainState===0"><button v-on:click="confirmRoll">Confirm Roll</button></div>\
+            </div>'
+})
+
+//contains logic for calculating scoring categories and values
+Vue.component('scoreCalculator',{
+  data: function(){
+    return {
+      possibleCategories: [], //available scoring categories
+      allCategories: [{name:'Ones',code:0,score:0},{name:'Twos',code:1,score:0},{name:'Threes',code:2,score:0}, //all categories
+                      {name:'Fours',code:3,score:0},{name:'Fives',code:4,score:0},{name:'Sixes',code:5,score:0},
+                      {name:'Full House',code:7,score:0},{name:'Four-of-a-Kind',code:8,score:0},{name:'Little Straight',code:9,score:0},
+                      {name:'Big Straight',code:10,score:0},{name:'Choice',code:11,score:0},{name:'Yacht',code:12,score:0}],
+      choice: "", //selected category
+      scores: [] //player's score array
+    }
+  },
+  methods: {
     confirmScore: function(){
-      this.$emit("score-confirmed",this.choice)
+      this.$emit("score-confirmed",this.choice,this.scores)
       this.choice=""
     },
-    //ported from Java version
+    /*/ported from Java version
     calculateRollOptions: function(){
       var flags = new boolean[13]
       var f=false
@@ -239,27 +262,16 @@ Vue.component('dice',{
       }
       return false;
     }
+*/
   },
-  template: '<div id=diceComponent>\
-            <p>Your Roll</p>\
-            <p v-if="this.$parent.mainState===0">Choose which dice you want to keep, the rest will be rerolled.</p>\
-            <p v-if="this.$parent.mainState===1">Choose which category you want to score in.</p>\
-            <div id=diceImageContainer>\
-              <figure id=dice0 class=dice><img v-bind:src=imgPaths[0] width=100 height=100 v-on:click="toggleDice(0)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-              <figure id=dice1 class=dice><img v-bind:src=imgPaths[1] width=100 height=100 v-on:click="toggleDice(1)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-              <figure id=dice2 class=dice><img v-bind:src=imgPaths[2] width=100 height=100 v-on:click="toggleDice(2)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-              <figure id=dice3 class=dice><img v-bind:src=imgPaths[3] width=100 height=100 v-on:click="toggleDice(3)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-              <figure id=dice4 class=dice><img v-bind:src=imgPaths[4] width=100 height=100 v-on:click="toggleDice(4)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-            </div>\
-            <div id=diceComponentSub v-if="this.$parent.mainState===0"><button v-on:click="confirmRoll">Confirm Roll</button></div>\
-            <div id=diceComponentSub v-if="this.$parent.mainState===1">\
-              <label>Chose <strong>{{choice}}</strong></label>\
-              <select v-model="choice">\
-                <option disabled value="">Please select a category</option>\
-                <option v-for="category in possibleCategories" v-bind:value="category">{{category.name}} ({{category.score}})</option>\
-              </select>\
-              <button v-on:click="confirmScore" :disabled="!choice">Confirm Score</button>\
-            </div>\
+  //TODO: change css tags
+  template: '<div id=diceComponentSub v-if="this.$parent.mainState===1">\
+            <label>Choice <strong>{{choice}}</strong></label>\
+            <select v-model="choice">\
+              <option disabled value="">Please select a category</option>\
+              <option v-for="category in allCategories" v-bind:value="category">{{category.name}} ({{category.score}})</option>\
+            </select>\
+            <button v-on:click="confirmScore" :disabled="!choice">Confirm Score</button>\
             </div>'
 })
 
