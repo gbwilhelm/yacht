@@ -38,7 +38,7 @@
       <p v-if="roundNumber>0">Round Number: <strong>{{roundNumber}}</strong> | Roll Number: <strong>{{rollNumber}}</strong></p>
       <br>
       <component v-bind:is="gameComponent" v-on:start-game="startGame" v-on:end-game="gameEnd"
-      v-on:restart-game="saveGame" v-on:roll-confirmed="rollConfirmed"></component>
+      v-on:restart-game="saveGame" v-on:rolled="rolled" v-on:score-confirmed="scoreConfirmed"></component>
     </div>
   </div>
 </body>

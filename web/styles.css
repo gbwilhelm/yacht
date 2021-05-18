@@ -199,3 +199,20 @@ figure{
     margin-left: 1em;
     margin-right: 1em;
 }
+
+table{
+    margin: 0 auto;
+}
+table, td, th{
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+th{
+    font-size: 1.5em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+.bonus td{
+    border-bottom: 4px solid black;
+    border-top: 4px solid black;
+}
