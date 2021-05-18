@@ -139,10 +139,10 @@ Vue.component('scoreCalculator',{
   data: function(){
     return {
       possibleCategories: [], //available scoring categories
-      allCategories: [{name:'Ones',code:0,score:0},{name:'Twos',code:1,score:0},{name:'Threes',code:2,score:0}, //all categories
-                      {name:'Fours',code:3,score:0},{name:'Fives',code:4,score:0},{name:'Sixes',code:5,score:0},{name:'Bonus',code:6,score:0},
-                      {name:'Full House',code:7,score:0},{name:'Four-of-a-Kind',code:8,score:0},{name:'Little Straight',code:9,score:0},
-                      {name:'Big Straight',code:10,score:0},{name:'Choice',code:11,score:0},{name:'Yacht',code:12,score:0}],
+      allCategories: [{name:'Ones',code:0,score:-1},{name:'Twos',code:1,score:-1},{name:'Threes',code:2,score:-1}, //all categories
+                      {name:'Fours',code:3,score:-1},{name:'Fives',code:4,score:-1},{name:'Sixes',code:5,score:-1},{name:'Bonus',code:6,score:35},
+                      {name:'Full House',code:7,score:-1},{name:'Four-of-a-Kind',code:8,score:-1},{name:'Little Straight',code:9,score:30},
+                      {name:'Big Straight',code:10,score:30},{name:'Choice',code:11,score:-1},{name:'Yacht',code:12,score:50}],
       choice: "", //selected category
       scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1] //player's score array
     }
@@ -302,20 +302,23 @@ Vue.component('scoreCalculator',{
     },
     //entrypoint from game-main, fills possibleCategories using data from roll and allCategories
     calculateScores: function(roll){
+      console.log(roll)
       this.possibleCategories.splice(0) //needed for Vue to update render
       this.possibleCategories = []
       let result = this.calculateRollOptions(roll)
       this.allCategories.forEach((val,i)=>{
+        val.score = this.calculateRollScore(i,roll)
         if(result[i])this.possibleCategories.push(val)
       })
       if(!this.possibleCategories){
-        //TODO: update display message, verify in tests
         this.scores.forEach((val,i)=>{
-          if(val<0){
-            this.possibleCategories.push(this.allCategories[i])
+          if(val<0 && i != 6){ //skip bonus category, -1 means the category is unscored
+            let temp = this.allCategories[i]; temp.score = 0
+            this.possibleCategories.push(temp)
           }
         })
       }
+      console.log(roll)
     },
     confirmScore: function(){
       this.$emit("score-confirmed",this.choice,this.scores)
@@ -433,6 +436,48 @@ Vue.component('scoreCalculator',{
         }
       }
       return false;
+    },
+    //ported from Java version. computes the score of a given category and dice rolls
+    calculateRollScore: function(category,dice){
+        var score=0
+        switch(category){ //like categories combined, unlike Java version
+            case 0: //ones
+            case 1: //twos
+            case 2: //threes
+            case 3: //fours
+            case 4: //fives
+            case 5: //sixes. sum of all matching dice
+                score=this.calculateNumericScore(category+1,dice,false);break
+            case 7: //full house, choice. sum of all dice
+            case 11:
+                dice.forEach(d=>{
+                    score+=d
+                });break
+            case 8: //four-of-a-kind
+                //since the roll was sorted earlier, either the odd one out is first or last in array
+                if(dice[0]===dice[1] || dice[0]===dice[2]){
+                    //last element is odd one out, first element is the matching pair
+                    score=this.calculateNumericScore(dice[0],dice,true)
+                }else{
+                    //1st element is odd one out, second element is the matching pair
+                    score=this.calculateNumericScore(dice[1],dice,true)
+                }break;
+            default://static scores already set, return -2 as error code
+                score=-2; break
+        }
+        return score
+    },
+    //ported from Java version. helper method to reduce repetition, also overloaded with extra flag
+    calculateNumericScore: function(number,dice,flag_4oak){
+        let score=0; let count_4oak=0 //only count 4 matching numbers in 4 of a kind, edge case
+        for(let i=0; i<dice.length; i++){
+            if(dice[i]===number){
+                score+=dice[i];
+                //only count 4 matching copies, this is for edge case of a yacht (5 matching)
+                if(flag_4oak && ++count_4oak==4)break;
+            }
+        }
+        return score;
     }
   },
   //TODO: change css tags
