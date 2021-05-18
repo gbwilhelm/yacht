@@ -22,7 +22,7 @@ Vue.component('game-main',{
     beginScoring: function(roll){
       console.log("begin scoring phase")
       this.mainState = 1
-      //run calculations on possible scores
+      this.$refs.scoreCalculator.calculateScores(roll)
     },
     scoreConfirmed: function(choice,scores){
       this.mainState = 0
@@ -36,7 +36,7 @@ Vue.component('game-main',{
             <p>MAIN GAME LOOP...</p>\
             <p>mainState: {{mainState}}</p>\
             <dice ref="dice" v-on:rolled="rolled" v-on:begin-scoring="beginScoring"></dice>\
-            <scoreCalculator ref="scoreCalculator" v-if="mainState===1" v-on:score-confirmed="scoreConfirmed"></scoreCalculator>\
+            <scoreCalculator ref="scoreCalculator" v-show="mainState===1" v-on:score-confirmed="scoreConfirmed"></scoreCalculator>\
             <scoreboard ref="scoreboard"></scoreboard>\
             </div>'
 })
@@ -121,8 +121,8 @@ Vue.component('dice',{
   },
   template: '<div id=diceComponent>\
             <p>Your Roll</p>\
-            <p v-if="this.$parent.mainState===0">Choose which dice you want to keep, the rest will be rerolled.</p>\
-            <p v-if="this.$parent.mainState===1">Choose which category you want to score in.</p>\
+            <p v-show="this.$parent.mainState===0">Choose which dice you want to keep, the rest will be rerolled.</p>\
+            <p v-show="this.$parent.mainState===1">Choose which category you want to score in.</p>\
             <div id=diceImageContainer>\
               <figure id=dice0 class=dice><img v-bind:src=imgPaths[0] width=100 height=100 v-on:click="toggleDice(0)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
               <figure id=dice1 class=dice><img v-bind:src=imgPaths[1] width=100 height=100 v-on:click="toggleDice(1)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
@@ -130,7 +130,7 @@ Vue.component('dice',{
               <figure id=dice3 class=dice><img v-bind:src=imgPaths[3] width=100 height=100 v-on:click="toggleDice(3)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
               <figure id=dice4 class=dice><img v-bind:src=imgPaths[4] width=100 height=100 v-on:click="toggleDice(4)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
             </div>\
-            <div id=diceComponentSub v-if="this.$parent.mainState===0"><button v-on:click="confirmRoll">Confirm Roll</button></div>\
+            <div id=diceComponentSub v-show="this.$parent.mainState===0"><button v-on:click="confirmRoll">Confirm Roll</button></div>\
             </div>'
 })
 
@@ -140,27 +140,196 @@ Vue.component('scoreCalculator',{
     return {
       possibleCategories: [], //available scoring categories
       allCategories: [{name:'Ones',code:0,score:0},{name:'Twos',code:1,score:0},{name:'Threes',code:2,score:0}, //all categories
-                      {name:'Fours',code:3,score:0},{name:'Fives',code:4,score:0},{name:'Sixes',code:5,score:0},
+                      {name:'Fours',code:3,score:0},{name:'Fives',code:4,score:0},{name:'Sixes',code:5,score:0},{name:'Bonus',code:6,score:0},
                       {name:'Full House',code:7,score:0},{name:'Four-of-a-Kind',code:8,score:0},{name:'Little Straight',code:9,score:0},
                       {name:'Big Straight',code:10,score:0},{name:'Choice',code:11,score:0},{name:'Yacht',code:12,score:0}],
       choice: "", //selected category
-      scores: [] //player's score array
+      scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1] //player's score array
     }
   },
   methods: {
+    equals: function(arr1,arr2){
+        if(arr1.length!=arr2.length)return false
+        for(let i=0; i<arr1.length; i++){
+          if(arr1[i]!=arr2[i])return false
+        }
+        return true
+    },
+    //,ported from Java, tests category detection
+    testMethods: function(){
+      var dice;
+      var expected; var result;
+
+      //Full House
+      expected = [true,false,false,true,false,false, false, true,false,false,false,true,false]
+      console.log("Testing Full House Detection (Same Expected Set)");
+          console.log("\tTest Array: [1,1,1,4,4]");
+              dice = [1,1,1,4,4]; //sorted 3-2
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[7])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [1,4,1,1,4]");
+              dice = [1,4,1,1,4]; //randomized
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[7])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [1,4,1,4,1]");
+              dice = [1,4,1,4,1]; //randomized
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[7])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [4,4,1,1,1]");
+              dice = [4,4,1,1,1]; //sorted 2-3
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[7])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+
+      //Yacht
+      console.log("Testing Yacht Detection, Contains Four-of-a-Kind");
+          console.log("\tTest Array: [2,2,2,2,2]");
+              expected = [false,true,false,false,false,false, false, false,true,false,false,true,true];
+              dice = [2,2,2,2,2]; //2s
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[12])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [5,5,5,5,5]");
+              expected = [false,false,false,false,true,false, false, false,true,false,false,true,true];
+              dice = [5,5,5,5,5]; //5s
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[12])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+      //Four-of-a-Kind, 4 matches
+      console.log("Testing Four-of-a-Kind Detection");
+          console.log("\tTest Array: [6,5,5,5,5]");
+              expected = [false,false,false,false,true,true, false, false,true,false,false,true,false];
+              dice = [6,5,5,5,5]; //sorted 1-4
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[8])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [4,4,4,4,1]");
+              expected = [true,false,false,true,false,false, false, false,true,false,false,true,false];
+              dice = [4,4,4,4,1]; //sorted 4-1
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[8])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [2,2,2,3,2]");
+              expected = [false,true,true,false,false,false, false, false,true,false,false,true,false];
+              dice = [2,2,2,3,2]; //mixed
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[8])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+      //Little Straight
+      expected = [true,true,true,true,true,false, false, false,false,true,false,true,false];
+      console.log("Testing Little Straight Detection (Same Expected Set)");
+          console.log("\tTest Array: [1,2,3,4,5]");
+              dice = [1,2,3,4,5]; //sorted
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[9])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [5,4,3,2,1]");
+              dice = [5,4,3,2,1]; //reverse sorted
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[9])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [2,4,1,5,3]");
+              dice = [2,4,1,5,3]; //randomized
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[9])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+      //Big Straight
+      expected = [false,true,true,true,true,true, false, false,false,false,true,true,false];
+      console.log("Testing Big Straight Detection (Same Expected Set)");
+          console.log("\tTest Array: [2,3,4,5,6]");
+              dice = [2,3,4,5,6]; //sorted
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[10])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [6,5,4,3,2]");
+              dice = [6,5,4,3,2]; //reverse sorted
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[10])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+          console.log("\tTest Array: [2,4,6,5,3]");
+              dice = [2,4,6,5,3]; //randomized
+              result = this.calculateRollOptions(dice);
+              if(this.equals(expected,result)){console.log("\tPASS");}else{
+                  console.log("\tFAIL");
+                  if(result[10])console.log("ED OTHER CATEGORY");
+                  console.log();
+              }
+    },
+    //entrypoint from game-main, fills possibleCategories using data from roll and allCategories
+    calculateScores: function(roll){
+      this.possibleCategories.splice(0) //needed for Vue to update render
+      this.possibleCategories = []
+      let result = this.calculateRollOptions(roll)
+      this.allCategories.forEach((val,i)=>{
+        if(result[i])this.possibleCategories.push(val)
+      })
+      if(!this.possibleCategories){
+        //TODO: update display message, verify in tests
+        this.scores.forEach((val,i)=>{
+          if(val<0){
+            this.possibleCategories.push(this.allCategories[i])
+          }
+        })
+      }
+    },
     confirmScore: function(){
       this.$emit("score-confirmed",this.choice,this.scores)
       this.choice=""
     },
-    /*/ported from Java version
-    calculateRollOptions: function(){
-      var flags = new boolean[13]
-      var f=false
+    //ported from Java version, returns mask of valid scoring categories
+    calculateRollOptions: function(diceRoll){
+      var flags = [false,false,false,false,false,false,false,false,false,false,false,false,false]
+      var f = false
       //ones through sixes
-      for(let int i=0; i<6; i++){
+      for(let i=0; i<6; i++){
           if(this.scores[i]<0){
-              if(this.calculateRollOptionNumeric(i+1)){
-                  flags[i]=true;f=true
+              if(this.calculateRollOptionNumeric(i+1,diceRoll)){
+                  flags[i]=true; f=true
               }
           }
       }
@@ -168,22 +337,22 @@ Vue.component('scoreCalculator',{
       if(this.scores[7]<0){
           let first=-1; let firstCount=0
           let second=-1; let secondCount=0
-          for(let d:this.diceRoll){
-              if(d === first){
-                  firstCount++
-              }else if(d===second){
-                  secondCount++
-              }else if(first===-1){
-                  first=d; firstCount++
-              }else{
-                  if(second===-1 && d!=first){
-                      second=d; secondCount++
-                  }else{
-                      if(d != first && d != second){ //third number detected
-                          break
-                      }
-                  }
-              }
+          for(let i=0; i<diceRoll.length; i++){
+            if(diceRoll[i] === first){
+                firstCount++
+            }else if(diceRoll[i]===second){
+                secondCount++
+            }else if(first===-1){
+                first=diceRoll[i]; firstCount++
+            }else{
+                if(second===-1 && diceRoll[i]!=first){
+                    second=diceRoll[i]; secondCount++
+                }else{
+                    if(diceRoll[i] != first && diceRoll[i] != second){ //third number detected
+                        break
+                    }
+                }
+            }
           }
           if(firstCount===3&&secondCount===2 || secondCount===3&&firstCount===2){
               flags[7]=true; f=true
@@ -192,12 +361,12 @@ Vue.component('scoreCalculator',{
       //four-of-a-kind
       if(this.scores[8]<0){
           let primary //primary is a double match
-          if(dice[0]===this.diceRoll[1]){
-              primary = this.diceRoll[0]
-          }if(dice[0]===this.diceRoll[2]){
-              primary = this.diceRoll[0]
-          }else if(dice[1] === this.diceRoll[2]){
-              primary = this.diceRoll[1]
+          if(diceRoll[0]===diceRoll[1]){
+              primary = diceRoll[0]
+          }if(diceRoll[0]===diceRoll[2]){
+              primary = diceRoll[0]
+          }else if(diceRoll[1] === diceRoll[2]){
+              primary = diceRoll[1]
           }else{
               primary = -1 //first 3 dice are unique, thus no four-of-a-kind
           }
@@ -205,8 +374,8 @@ Vue.component('scoreCalculator',{
           if(primary!=-1){
               let b1=false//flag for first mismatch
               let b2=false//flag for second mismatch
-              for(let d:dice){
-                  if(d!=primary){
+              for(let i=0; i<diceRoll.length; i++){
+                  if(diceRoll[i]!=primary){
                       if(b1){
                           b2=true; break
                       }else{
@@ -219,18 +388,19 @@ Vue.component('scoreCalculator',{
               }
           }
       }
-      this.diceRoll.sort((a,b) => a-b)
+      //sort for easier processing
+      diceRoll.sort((a,b) => a-b)
       //little straight
       if(this.scores[9]<0){
-          if(this.diceRoll[0]===1 && this.diceRoll[1]===2 && this.diceRoll[2]===3
-              && this.diceRoll[3]===4 && this.diceRoll[4]===5){
+          if(diceRoll[0]===1 && diceRoll[1]===2 && diceRoll[2]===3
+              && diceRoll[3]===4 && diceRoll[4]===5){
                   flags[9]=true; f=true
               }
       }
       //big straight
       if(this.scores[10]<0){
-          if(this.diceRoll[0]===2 && this.diceRoll[1]===3 && this.diceRoll[2]===4
-              && this.diceRoll[3]===5 && this.diceRoll[4]===6){
+          if(diceRoll[0]===2 && diceRoll[1]===3 && diceRoll[2]===4
+              && diceRoll[3]===5 && diceRoll[4]===6){
                   flags[10]=true; f=true
               }
       }
@@ -241,11 +411,11 @@ Vue.component('scoreCalculator',{
       //yacht
       if(this.scores[12]<0){
           let hasYacht=true;
-          for(let d:this.diceRoll){
-              if(d != this.diceRoll[0]){
-                  hasYacht=false;
-                  break;
-              }
+          for(let i=0; i<diceRoll.length; i++){
+            if(diceRoll[i] != diceRoll[0]){
+                hasYacht=false;
+                break;
+            }
           }
           if(hasYacht){
               flags[12]=true; f=true
@@ -254,22 +424,23 @@ Vue.component('scoreCalculator',{
       if(f)return flags;
       return null;
     },
-    calculateRollOptionNumeric: function(number){
-      for(let d:this.diceRoll){
-          if(d===number){
-              return true;
-          }
+    //ported from Java version
+    calculateRollOptionNumeric: function(number,diceRoll){
+      //check if rolls contains at least 1 instance of number
+      for(let i=0; i<diceRoll.length; i++){
+        if(diceRoll[i]===number){
+            return true;
+        }
       }
       return false;
     }
-*/
   },
   //TODO: change css tags
-  template: '<div id=diceComponentSub v-if="this.$parent.mainState===1">\
+  template: '<div id=diceComponentSub>\
             <label>Choice <strong>{{choice}}</strong></label>\
             <select v-model="choice">\
               <option disabled value="">Please select a category</option>\
-              <option v-for="category in allCategories" v-bind:value="category">{{category.name}} ({{category.score}})</option>\
+              <option v-for="category in possibleCategories" v-bind:value="category">{{category.name}} ({{category.score}})</option>\
             </select>\
             <button v-on:click="confirmScore" :disabled="!choice">Confirm Score</button>\
             </div>'
