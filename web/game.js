@@ -8,13 +8,16 @@ Vue.component('game-welcome',{
             </div>'
 })
 
-//game loop component
+//game loop component, passes signals from dice component to main app
 Vue.component('game-main',{
+  methods:{
+    rollConfirmed(roll){
+      this.$emit("roll-confirmed",roll)
+    }
+  },
   template: '<div>\
             <p>MAIN GAME LOOP...</p>\
-            <dice></dice>\
-            <br>\
-            <button v-on:click=\"$emit(\'end-game\')\">End Game</button>\
+            <dice v-on:roll-confirmed="rollConfirmed"></dice>\
             </div>'
 })
 
@@ -48,7 +51,6 @@ Vue.component('dice',{
   },
   methods: {
     toggleDice: function(d){
-      console.log("Dice "+d+" clicked")
       if(!this.diceLocked[d]){
         let dice = document.getElementById("dice"+d)
         if(!this.diceChosen[d]){
@@ -59,8 +61,6 @@ Vue.component('dice',{
           dice.children[1].firstChild.className = "fas fa-lock-open"
         }
         this.diceChosen[d] = !this.diceChosen[d]
-      }else{
-        console.log("cannot select dice "+d+", it is locked")
       }
     },
     confirmRoll: function(){
@@ -72,8 +72,12 @@ Vue.component('dice',{
         this.diceLocked[i] = true //temp code, no need to change in future since parent object will change it
         this.diceChosen[i] = false //deselect dice
       })
-      //currently prints all chosen dice and all non chosen dice for verification
-      //in future, this will emit a signal to continue the main game loop to read the rolls and chosen dice data
+      //pass rolls up to parent if the round is over, else pass empty array
+      if(this.$parent.$parent.rollNumber===3){
+        this.$emit("roll-confirmed",this.diceRoll)
+      }else{
+        this.$emit("roll-confirmed",[])
+      }
     }
   },
   template: '<div id=diceComponent>\
@@ -86,7 +90,7 @@ Vue.component('dice',{
             <figure id=dice3 class=dice><img v-bind:src="d3" width=100 height=100 v-on:click="toggleDice(3)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
             <figure id=dice4 class=dice><img v-bind:src="d4" width=100 height=100 v-on:click="toggleDice(4)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
             </div>\
-            <div id=diceComponentSub><button v-on:click="confirmRoll">Confirm Roll</button></div>\
+            <div id=diceComponentSub><button v-on:click=\"confirmRoll\">Confirm Roll</button></div>\
             </div>'
 })
 
@@ -106,21 +110,36 @@ Vue.component('game-results',{
 var game = new Vue({
   el: '#game',
   data: {
-    gameState: 1, //0 is welcome, 1 is main, 2 is results
-    roundNumber: 0, //keeps track of scoring rounds (max 12)
-    rollNumber: 0 //keeps track of rolls (max 3)
+    gameState: 0, //0 is welcome, 1 is main, 2 is results
+    roundNumber: 0, //keeps track of scoring rounds range(1,12, reset to 0 on game over)
+    rollNumber: 1, //keeps track of rolls range(1,3)
+    rollValues: [] //values for the round's final roll
   },
   computed: {
     gameComponent: function(){
       switch(this.gameState){
-        case 1: return 'game-main';
-        case 2: return 'game-results';
-        default: return 'game-welcome';
+        case 1: return 'game-main'
+        case 2: return 'game-results'
+        default: return 'game-welcome'
       }
     }
   },
   watch: {
-
+    roundNumber: function(){
+      if(this.roundNumber > 12){ //roundNumber will be 13 when the game ends
+        console.log("Round limit exceeded, ending game")
+        this.roundNumber=0
+        this.gameEnd()
+      }
+    },
+    rollNumber: function(){
+      if(this.rollNumber > 3){ //rollNumber will be 4 when the round ends
+        this.rollNumber=1
+        console.log('final roll: '+this.rollValues)
+        //todo: begin scoring event
+        this.roundNumber++ //will update after player has scored
+      }
+    }
   },
   methods: {
     startGame: function(){
@@ -129,16 +148,16 @@ var game = new Vue({
       this.mainEngine()
 
     },
-    mainEngine: function(){
+    mainEngine: async function(){
       //main game loop, use Vue components for dice and i/o operations
       console.log("beginning game loop...")
-      this.gameState = 1;
-
+      this.gameState=1
+      this.roundNumber=1
     },
     gameEnd: function(){
       //ask if user wants to save game
       console.log("game finished")
-      this.gameState = 2;
+      this.gameState = 2
 
     },
     saveGame: function(flag){
@@ -149,10 +168,14 @@ var game = new Vue({
       }else{
         console.log("game was not saved")
       }
-      this.gameState = 0;
+      this.gameState = 0
     },
     toggleRules: function(){
       this.showRules = !this.showRules
+    },
+    rollConfirmed: function(roll){
+      this.rollNumber++
+      this.rollValues=roll
     }
   },
   beforeMount(){

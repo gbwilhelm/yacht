@@ -34,11 +34,11 @@
   </div>
   <div id="game">
     <div id=gameArea>
-      <p>GameState: <strong>{{gameState}}</strong></p>
-      <p>GameComponent: <strong>{{gameComponent}}</strong></p>
-      <p>Round Number: <strong>{{roundNumber}}</strong> | Roll Number: <strong>{{rollNumber}}</strong></p>
+      <p>GameState: <strong>{{gameState}}</strong> | GameComponent: <strong>{{gameComponent}}</strong></p>
+      <p v-if="roundNumber>0">Round Number: <strong>{{roundNumber}}</strong> | Roll Number: <strong>{{rollNumber}}</strong></p>
       <br>
-      <component v-bind:is="gameComponent" v-on:start-game="startGame" v-on:end-game="gameEnd" v-on:restart-game="saveGame"></component>
+      <component v-bind:is="gameComponent" v-on:start-game="startGame" v-on:end-game="gameEnd"
+      v-on:restart-game="saveGame" v-on:roll-confirmed="rollConfirmed"></component>
     </div>
   </div>
 </body>
