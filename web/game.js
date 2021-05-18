@@ -25,31 +25,26 @@ Vue.component('game-main',{
 Vue.component('dice',{
   data: function(){
     return{
-      path: 'img/dice_',
-      pathEnd: '.png',
-      diceRoll: [1,2,3,4,5],
+      diceRoll: [1,1,1,1,1],
       diceChosen: [false,false,false,false,false],
-      diceLocked: [false,false,false,false,false]
+      diceLocked: [false,false,false,false,false],
+      imgPaths: ["img/dice_1.png","img/dice_1.png","img/dice_1.png","img/dice_1.png","img/dice_1.png"],
+      imgIndex: 9 //index in imgPaths of the image number
     }
   },
-  computed: {
-      d0: function(){
-        return this.path+this.diceRoll[0]+this.pathEnd
-      },
-      d1: function(){
-        return this.path+this.diceRoll[1]+this.pathEnd
-      },
-      d2: function(){
-        return this.path+this.diceRoll[2]+this.pathEnd
-      },
-      d3: function(){
-        return this.path+this.diceRoll[3]+this.pathEnd
-      },
-      d4: function(){
-        return this.path+this.diceRoll[4]+this.pathEnd
-      }
+  beforeMount(){
+    this.rollDice()
   },
   methods: {
+    rollDice: function(){
+      this.diceLocked.forEach((val,i)=>{
+        if(!val){
+          this.diceRoll[i] = getRandomInt(1,7)
+          this.imgPaths[i] = this.imgPaths[i].substr(0,this.imgIndex)+this.diceRoll[i]+this.imgPaths[i].substr(this.imgIndex+1,this.imgPaths[i].length)
+        }
+      })
+      this.$forceUpdate()
+    },
     toggleDice: function(d){
       if(!this.diceLocked[d]){
         let dice = document.getElementById("dice"+d)
@@ -74,21 +69,30 @@ Vue.component('dice',{
       })
       //pass rolls up to parent if the round is over, else pass empty array
       if(this.$parent.$parent.rollNumber===3){
+        this.diceLocked.forEach((val,i)=>{
+          if(val){
+            let dice = document.getElementById("dice"+i)
+            dice.className = "dice"
+            dice.children[1].firstChild.className = "fas fa-lock-open"
+            this.diceLocked[i]=false
+          }
+        })
         this.$emit("roll-confirmed",this.diceRoll)
       }else{
         this.$emit("roll-confirmed",[])
       }
+      this.rollDice() //prepare next roll
     }
   },
   template: '<div id=diceComponent>\
             <p>Your Roll</p>\
             <p>Choose which dice you want to keep, the rest will be rerolled.</p>\
             <div id=diceImageContainer>\
-            <figure id=dice0 class=dice><img v-bind:src="d0" width=100 height=100 v-on:click="toggleDice(0)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-            <figure id=dice1 class=dice><img v-bind:src="d1" width=100 height=100 v-on:click="toggleDice(1)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-            <figure id=dice2 class=dice><img v-bind:src="d2" width=100 height=100 v-on:click="toggleDice(2)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-            <figure id=dice3 class=dice><img v-bind:src="d3" width=100 height=100 v-on:click="toggleDice(3)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
-            <figure id=dice4 class=dice><img v-bind:src="d4" width=100 height=100 v-on:click="toggleDice(4)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+            <figure id=dice0 class=dice><img v-bind:src=imgPaths[0] width=100 height=100 v-on:click="toggleDice(0)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+            <figure id=dice1 class=dice><img v-bind:src=imgPaths[1] width=100 height=100 v-on:click="toggleDice(1)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+            <figure id=dice2 class=dice><img v-bind:src=imgPaths[2] width=100 height=100 v-on:click="toggleDice(2)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+            <figure id=dice3 class=dice><img v-bind:src=imgPaths[3] width=100 height=100 v-on:click="toggleDice(3)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
+            <figure id=dice4 class=dice><img v-bind:src=imgPaths[4] width=100 height=100 v-on:click="toggleDice(4)"><figcaption><i class="fas fa-lock-open"></i></figcaption></figure>\
             </div>\
             <div id=diceComponentSub><button v-on:click=\"confirmRoll\">Confirm Roll</button></div>\
             </div>'
@@ -182,6 +186,14 @@ var game = new Vue({
     console.log("Vue script loaded")
   }
 })
+
+
+//from official JS documentation
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
 
 //click handler for displaying game rules, toggles visibillity and icon
 function toggleRules(){
