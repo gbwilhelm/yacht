@@ -15,6 +15,7 @@
     --blue_2c: #181874;
     --blue_3c: #060667;
     --blue_1c_c: #9b8570;
+    --red: #802d2d;
 }
 
 body {
@@ -167,4 +168,34 @@ h1, p{
 #rules{
     border: 1px solid red;
     text-align: center;
+}
+#diceComponent{
+    border: 1px solid black;
+    width: 60%;
+    margin-left: 20%;
+}
+#diceComponentSub{
+    text-align: right;
+}
+.dice{
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.diceChosen{
+    padding-bottom: 0.25em;
+    border-bottom: 3px solid var(--blue_1c);
+}
+.diceLocked{
+    padding-bottom: 0.25em;
+    border-bottom: 3px solid var(--red);
+}
+#diceImageContainer{
+    margin-bottom: 1em;
+    height: 10em;
+    border: 1px green solid;
+}
+figure{
+    display: inline-block;
+    margin-left: 1em;
+    margin-right: 1em;
 }

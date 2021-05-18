@@ -33,14 +33,13 @@
     <h1 id=gameTitle>Yacht Game</h1>
   </div>
   <div id="game">
-    <div id=textArea>
+    <div id=gameArea>
       <p>GameState: <strong>{{gameState}}</strong></p>
       <p>GameComponent: <strong>{{gameComponent}}</strong></p>
+      <p>Round Number: <strong>{{roundNumber}}</strong> | Roll Number: <strong>{{rollNumber}}</strong></p>
       <br>
       <component v-bind:is="gameComponent" v-on:start-game="startGame" v-on:end-game="gameEnd" v-on:restart-game="saveGame"></component>
     </div>
-    <div id=displayArea></div>
-    <div id=inputArea></div>
   </div>
 </body>
 </html>
