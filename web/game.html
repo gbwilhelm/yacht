@@ -19,7 +19,14 @@
       <a href="leaderboard.html"><i class="fas fa-chalkboard"></i>  Leaderboard</a>
     </div>
     <div id=ghub>
+      <button id=rulesNav onclick="toggleRules()"><i class="fas fa-caret-down" id=rulesHeaderIcon></i></i>  Rules</button>
       <a id=ghub href="https://github.com/gbwilhelm/yacht"><i class="fab fa-github"></i>  Source Code</a>
+    </div>
+  </div>
+  <div id=rulesArea>
+    <div id=rules v-if="showRules">
+      <h1>Rules of Yacht</h1>
+      <p>Rules will go here</p>
     </div>
   </div>
   <div id=gameTitle>
@@ -30,10 +37,10 @@
       <p>GameState: <strong>{{gameState}}</strong></p>
       <p>GameComponent: <strong>{{gameComponent}}</strong></p>
       <br>
-      <component v-bind:is="gameComponent" v-on:start-game="startGame"></component>
+      <component v-bind:is="gameComponent" v-on:start-game="startGame" v-on:end-game="gameEnd" v-on:restart-game="saveGame"></component>
     </div>
     <div id=displayArea></div>
-    <div id=inputArea><div>
+    <div id=inputArea></div>
   </div>
 </body>
 </html>

@@ -26,7 +26,7 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-h1, h2, p{
+h1, p{
     margin: 0;
 }
 
@@ -44,6 +44,7 @@ h1, h2, p{
     height: 2.1em;
     padding-top: 1em;
     display: inline-block;
+    font-size: 1em;
 }
 
 #header a{
@@ -53,7 +54,22 @@ h1, h2, p{
     font-weight: 500;
 }
 
+#header button{
+    padding-left: 1em;
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 500;
+    border: none;
+    background: none;
+    font-size: 1em;
+}
+
 #header a:hover{
+  text-decoration: underline;
+  color: var(--gray);
+}
+
+#header button:hover{
   text-decoration: underline;
   color: var(--gray);
 }
@@ -134,4 +150,21 @@ h1, h2, p{
 }
 #game img{
     border: 1px solid black;
+}
+#rulesArea{
+    border: 2px solid black;
+    text-align: right;
+    display: none;
+    width: calc(100% - 2em);
+    height: calc(100% - 4em);
+    position: absolute;
+    background-color: white;
+    top: 3em;
+    left: 0;
+    overflow-y: auto;
+    margin-left: 1em;
+}
+#rules{
+    border: 1px solid red;
+    text-align: center;
 }
