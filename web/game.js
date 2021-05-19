@@ -141,13 +141,15 @@ Vue.component('scoreCalculator',{
       possibleCategories: [], //available scoring categories
       allCategories: [{name:'Ones',code:0,score:-1},{name:'Twos',code:1,score:-1},{name:'Threes',code:2,score:-1}, //all categories
                       {name:'Fours',code:3,score:-1},{name:'Fives',code:4,score:-1},{name:'Sixes',code:5,score:-1},{name:'Bonus',code:6,score:35},
-                      {name:'Full House',code:7,score:-1},{name:'Four-of-a-Kind',code:8,score:-1},{name:'Little Straight',code:9,score:30},
-                      {name:'Big Straight',code:10,score:30},{name:'Choice',code:11,score:-1},{name:'Yacht',code:12,score:50}],
+                      {name:'Full House',code:7,score:-1},{name:'Four-of-a-Kind',code:8,score:-1},{name:'Little Straight',code:9,score:-1},
+                      {name:'Big Straight',code:10,score:-1},{name:'Choice',code:11,score:-1},{name:'Yacht',code:12,score:-1}],
       choice: "", //selected category
-      scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1] //player's score array
+      scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], //player's score array
+      numericScored: 0 //when 6, calculate bonus, incremented when scoring in a numeric category
     }
   },
   methods: {
+    //helper method for comparing two arrays
     equals: function(arr1,arr2){
         if(arr1.length!=arr2.length)return false
         for(let i=0; i<arr1.length; i++){
@@ -155,7 +157,7 @@ Vue.component('scoreCalculator',{
         }
         return true
     },
-    //,ported from Java, tests category detection
+    //ported from Java, tests category detection
     testMethods: function(){
       var dice;
       var expected; var result;
@@ -302,15 +304,16 @@ Vue.component('scoreCalculator',{
     },
     //entrypoint from game-main, fills possibleCategories using data from roll and allCategories
     calculateScores: function(roll){
-      console.log(roll)
       this.possibleCategories.splice(0) //needed for Vue to update render
       this.possibleCategories = []
       let result = this.calculateRollOptions(roll)
-      this.allCategories.forEach((val,i)=>{
-        val.score = this.calculateRollScore(i,roll)
-        if(result[i])this.possibleCategories.push(val)
-      })
-      if(!this.possibleCategories){
+      if(result){
+        this.allCategories.forEach((val,i)=>{
+          val.score = this.calculateRollScore(i,roll)
+          if(result[i])this.possibleCategories.push(val)
+        })
+      }else{
+        //no possible categories, return all 0 categories
         this.scores.forEach((val,i)=>{
           if(val<0 && i != 6){ //skip bonus category, -1 means the category is unscored
             let temp = this.allCategories[i]; temp.score = 0
@@ -318,10 +321,27 @@ Vue.component('scoreCalculator',{
           }
         })
       }
-      console.log(roll)
     },
+    //button handler, sends selected option to game-main
     confirmScore: function(){
+      //set score of choice
+      this.scores[this.choice.code]=this.choice.score
+      //relay to parents
       this.$emit("score-confirmed",this.choice,this.scores)
+      if(this.choice.code < 6){
+        if(++this.numericScored===6){
+          //check for bonus
+          if(this.scores[0]+this.scores[1]+this.scores[2]+this.scores[3]+this.scores[4]+this.scores[5]>62){
+            console.log("achieved bonus!")
+            this.choice = this.allCategories[6]
+          }else{
+            console.log("no bonus")
+            this.choice = this.allCategories[6]; this.choice.score=0
+          }
+          this.scores[this.choice.code]=this.choice.score
+          this.$emit("score-confirmed",this.choice,this.scores)
+        }
+      }
       this.choice=""
     },
     //ported from Java version, returns mask of valid scoring categories
@@ -448,8 +468,8 @@ Vue.component('scoreCalculator',{
             case 4: //fives
             case 5: //sixes. sum of all matching dice
                 score=this.calculateNumericScore(category+1,dice,false);break
-            case 7: //full house, choice. sum of all dice
-            case 11:
+            case 7: //full house
+            case 11: //choice. sum of all dice
                 dice.forEach(d=>{
                     score+=d
                 });break
@@ -462,6 +482,11 @@ Vue.component('scoreCalculator',{
                     //1st element is odd one out, second element is the matching pair
                     score=this.calculateNumericScore(dice[1],dice,true)
                 }break;
+            case 9://small straight
+            case 10: //big straight
+                score=30; break
+            case 12: //yacht
+                score=50; break
             default://static scores already set, return -2 as error code
                 score=-2; break
         }
@@ -495,16 +520,22 @@ Vue.component('scoreCalculator',{
 Vue.component('scoreboard',{
   data: function(){
     return{
-      scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+      scores: ['-','-','-','-','-','-','-','-','-','-','-','-','-'] //local copy of scoreCalculator.scores, replaced after 1st scoring
     }
   },
   methods: {
     updateScores: function(newScores){
-      this.scores = [...newScores]
+      let temp = [...newScores] //copy since newScores is linked to scoreCalculator.scores
+      for(let i=0; i<temp.length; i++){
+        if(temp[i]<0)temp[i]='-'
+      }
+      console.log(newScores)
+      console.log(temp)
+      this.scores = [...temp] //this triggers the Vue update
     }
   },
   template: '<div id=score>\
-            <h1>Score</h1>\
+            <h1>Score Card</h1>\
             <table>\
               <tr><th>Category</th><th>Score</th></tr>\
               <tr class=ones><td>Ones</td><td>{{scores[0]}}</td></tr>\
