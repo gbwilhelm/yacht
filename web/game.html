@@ -34,11 +34,9 @@
   </div>
   <div id="game">
     <div id=gameArea>
-      <p>GameState: <strong>{{gameState}}</strong> | GameComponent: <strong>{{gameComponent}}</strong></p>
-      <h1 v-if="roundNumber>0">Round Number: <strong>{{roundNumber}}</strong> | Roll Number: <strong>{{rollNumber}}</strong></h1>
-      <br>
       <component ref="mainComponent" v-bind:is="gameComponent" v-on:start-game="startGame" v-on:end-game="gameEnd"
-      v-on:restart-game="saveGame" v-on:rolled="rolled" v-on:final-score="setFinalScore" v-on:results-rendered="setResults"></component>
+                  v-on:restart-game="saveGame" v-on:rolled="rolled" v-on:final-score="setFinalScore"
+                  v-on:results-mounted="setResults" v-on:save-mounted="pushData" v-on:data-sent="dataSent"></component>
     </div>
   </div>
 </body>

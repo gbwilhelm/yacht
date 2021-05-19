@@ -41,10 +41,10 @@ Vue.component('game-main',{
     }
   },
   template: '<div>\
-            <p>MAIN GAME LOOP...</p>\
-            <p>mainState: {{mainState}}</p>\
+            <h1 v-if="mainState<2">Round Number {{this.$parent.roundNumber}} of 12</h1>\
+            <h1 v-if="mainState===2">Game Over</h1>\
             <dice ref="dice" v-show="mainState!=2" v-on:rolled="rolled" v-on:begin-scoring="beginScoring"></dice>\
-            <scoreCalculator ref="scoreCalculator" v-show="mainState===1" v-on:score-confirmed="scoreConfirmed"></scoreCalculator>\
+            <score-calculator ref="scoreCalculator" v-show="mainState===1" v-on:score-confirmed="scoreConfirmed"></score-calculator>\
             <div v-show="mainState===2">\
               <p>You may review your score card. When ready, click Continue.</p>\
               <button v-on:click="submitReview">Continue</button>\
@@ -129,7 +129,7 @@ Vue.component('dice',{
     }
   },
   template: '<div id=diceComponent>\
-            <p>Your Roll</p>\
+            <h1>Your Roll ({{this.$parent.$parent.rollNumber}} of 3)</h1>\
             <p v-show="this.$parent.mainState===0">Choose which dice you want to keep, the rest will be rerolled.</p>\
             <p v-show="this.$parent.mainState===1">Choose which category you want to score in.</p>\
             <div id=diceImageContainer>\
@@ -144,7 +144,7 @@ Vue.component('dice',{
 })
 
 //contains logic for calculating scoring categories and values
-Vue.component('scoreCalculator',{
+Vue.component('score-calculator',{
   data: function(){
     return {
       possibleCategories: [], //available scoring categories
@@ -565,7 +565,8 @@ Vue.component('game-results',{
   data: function(){
     return{
       total: 0,
-      scores: []
+      scores: [],
+      save: false
     }
   },
   methods: {
@@ -576,21 +577,76 @@ Vue.component('game-results',{
   },
   mounted(){
     //make sure component is mounted before parent tries to access
-    this.$emit("results-rendered")
+    this.$emit("results-mounted")
   },
   template: '<div>\
-            <h1>GAME OVER</h1>\
+            <h1>Thank you for playing!</h1>\
             <p>You scored {{total}} points.</p>\
-            <p>{{scores}}</p>\
+            <p>If you would like to save your score to the global leaderboard, please click Save Game and fill out the appropriate fields.<p>\
+            <p>You may begin a new game after clicking either button.</p>\
             <button v-on:click=\"$emit(\'restart-game\',true)\">Save Game</button>\
             <button v-on:click=\"$emit(\'restart-game\',false)\">Do Not Game</button>\
+            </div>'
+})
+
+Vue.component('save-component',{
+  data: function(){
+    return{
+      name: '',
+      title: '',
+      comment: '',
+      scores: [],
+      total: 0
+    }
+  },
+  mounted(){
+    //make sure component is mounted before parent tries to access
+    this.$emit("save-mounted")
+  },
+  methods:{
+    init: function(t,s){
+      this.total=t
+      this.scores = [...s]
+    },
+    submit: function(){
+      let data = this.prepareData()
+      this.initDatabase()
+      let ret = this.sendData(data)
+      this.$emit("data-sent",ret)
+    },
+    prepareData: function(){
+      //format data to fit Dynamo schema
+      console.log("preparing data...")
+      return {}
+    },
+    initDatabase: function(){
+      //init AWS variables
+      console.log("initializing database vars...")
+    },
+    sendData: function(data){
+      //attempt to send to DynamoDB
+      console.log("sending data...")
+      return true
+    }
+  },
+  template: '<div>\
+            <h1>Database Save Form</h1>\
+            <form id=databaseForm>\
+              <label>Please enter a name.</label><br>\
+              <input v-model="name"></input><br>\
+              <label>Please enter a game title.</label><br>\
+              <input v-model="title"></input><br>\
+              <label>Feel free to leave an optional comment (max 280 characters).</label><br>\
+              <textarea v-model="comment" maxlength="280"></textarea><br>\
+              <button v-on:click="submit" :disabled="!name || !title">Submit</button>\
+            </form>\
             </div>'
 })
 
 var game = new Vue({
   el: '#game',
   data: {
-    gameState: 0, //0 is welcome, 1 is main, 2 is results
+    gameState: 2, //0 is welcome, 1 is main, 2 is results
     roundNumber: 0, //keeps track of scoring rounds range(1,12, reset to 0 on game over)
     rollNumber: 0, //keeps track of rolls range(1,3 only 0 before first roll of game)
     rollValues: [], //values for the round's final roll
@@ -602,6 +658,7 @@ var game = new Vue({
       switch(this.gameState){
         case 1: return 'game-main'
         case 2: return 'game-results'
+        case 3: return 'save-component'
         default: return 'game-welcome'
       }
     }
@@ -641,12 +698,11 @@ var game = new Vue({
       }
     },
     saveGame: function(flag){
-      //show Vue component with input form, ask for confirmation before accepting
-      //write to DynamoDB
       if(flag){
-        console.log("saving game to database...")
+        this.gameState = 3
+      }else{
+        this.gameState = 0
       }
-      this.gameState = 0
     },
     toggleRules: function(){
       this.showRules = !this.showRules
@@ -660,6 +716,13 @@ var game = new Vue({
     setResults: function(){
       console.log("Final Game Score: ["+this.scores+"]. Total = "+this.total)
       this.$refs.mainComponent.init(this.total,this.scores)
+    },
+    pushData: function(){
+      this.$refs.mainComponent.init(this.total,this.scores)
+    },
+    dataSent: function(ret){
+      window.alert("Data sent.\nDatabase returned "+ret)
+      this.gameState = 0
     }
   }
 })

@@ -170,7 +170,6 @@ h1, p{
     text-align: center;
 }
 #diceComponent{
-    border: 1px solid black;
     width: 60%;
     margin-left: 20%;
 }
@@ -192,12 +191,8 @@ h1, p{
 #diceImageContainer{
     margin-bottom: 1em;
     height: 10em;
-    border: 1px green solid;
 }
 #scoreCalculator{
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-    border-bottom: 1px solid black;
     width: 60%;
     margin-left: 20%;
     text-align: right;
@@ -224,4 +219,19 @@ th{
 .bonus td{
     border-bottom: 4px solid black;
     border-top: 4px solid black;
+}
+#databaseForm{
+    background-color: red;
+    width: 50%;
+    margin-left: 25%;
+    text-align: left;
+}
+#databaseForm button{
+    float: right;
+}
+#databaseForm textarea{
+    resize: none;
+    overflow: auto;
+    width: 600px;
+    height: 300px;
 }
