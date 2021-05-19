@@ -4,6 +4,8 @@ yarn install
 
 yarn add express
 
+yarn add body-parser
+
 yarn add @aws-sdk/client-dynamodb
 
 npm start

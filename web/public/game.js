@@ -592,11 +592,12 @@ Vue.component('game-results',{
 Vue.component('save-component',{
   data: function(){
     return{
-      name: '',
-      title: '',
-      comment: '',
+      name: 'a',
+      title: 'b',
+      comment: 'c',
       scores: [],
-      total: 0
+      total: 0,
+      disabled: false
     }
   },
   mounted(){
@@ -608,39 +609,42 @@ Vue.component('save-component',{
       this.total=t
       this.scores = [...s]
     },
-    submit: function(){
-      let data = this.prepareData()
-      this.initDatabase()
-      let ret = this.sendData(data)
-      this.$emit("data-sent",ret)
+    submit: async function(){
+      this.disabled = true //do not allow double submit unless request failed
+      //data will be formatted server-side
+      let data = {name:this.name,title:this.title,comment:this.comment,scores:this.scores,total:this.total}
+      let ret = await this.sendData(data)
+      if(ret.status===200){
+        this.$emit("data-sent",ret.response)
+      }else{
+        //not much to be done on failure, but user can try to submit again
+        window.alert("Request failed with HTTP status "+ret.status)
+        this.disabled=false
+      }
     },
-    prepareData: function(){
-      //format data to fit Dynamo schema
-      console.log("preparing data...")
-      return {}
-    },
-    initDatabase: function(){
-      //init AWS variables
-      console.log("initializing database vars...")
-    },
-    sendData: function(data){
+    sendData: async function(data){
       //attempt to send to DynamoDB
       console.log("sending data...")
-      return true
+      //send post request to server with data
+      var req = new XMLHttpRequest() //can block since its inside async function called by other async function
+      req.open("POST","/ddb",false)
+      req.setRequestHeader("Content-Type","application/json;charset=UTF-8") //needed for POST
+      req.send(JSON.stringify(data))
+      console.log("RESPONSE RECEIVED")
+      console.log(req)
+      return req
     }
   },
-  template: '<div>\
-            <h1>Database Save Form</h1>\
-            <form id=databaseForm>\
+  template: '<div><h1>Database Save Form</h1>\
+            <div id=databaseForm>\
               <label>Please enter a name.</label><br>\
               <input v-model="name"></input><br>\
               <label>Please enter a game title.</label><br>\
               <input v-model="title"></input><br>\
               <label>Feel free to leave an optional comment (max 280 characters).</label><br>\
               <textarea v-model="comment" maxlength="280"></textarea><br>\
-              <button v-on:click="submit" :disabled="!name || !title">Submit</button>\
-            </form>\
-            </div>'
+              <button v-on:click="submit" :disabled="!name || !title || disabled">Submit</button>\
+            </div></div>'
 })
 
 var game = new Vue({
@@ -714,7 +718,6 @@ var game = new Vue({
       this.scores = [...s]
     },
     setResults: function(){
-      console.log("Final Game Score: ["+this.scores+"]. Total = "+this.total)
       this.$refs.mainComponent.init(this.total,this.scores)
     },
     pushData: function(){

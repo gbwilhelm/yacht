@@ -1,16 +1,10 @@
 const express = require("express")
+const bodyParser = require("body-parser")
 const { DynamoDBClient, DescribeTableCommand } = require("@aws-sdk/client-dynamodb")
 
-const app = express()
-app.use(express.static("public"))
+//Define AWS functions here
 
-app.listen(8080) //run server, access via ip:port
-console.log("server listening on port 8080")
-
-const initClient = function(){
-  console.log("creating ddb client...")
-  this.ddbClient = new DynamoDBClient({region:"us-east-1"})
-}
+const ddbClient = new DynamoDBClient({region:"us-east-1"})
 
 const describeTable = function(){
   const params = {TableName:"yacht-scores"};
@@ -19,7 +13,7 @@ const describeTable = function(){
 
   const run = async () => {
     try {
-      const data = await this.ddbClient.send(new DescribeTableCommand(params))
+      const data = await ddbClient.send(new DescribeTableCommand(params))
       console.log("Success",data.Table.KeySchema)
       return data
     } catch (err) {
@@ -28,7 +22,23 @@ const describeTable = function(){
   }; run()
 }
 
-//need to use express routing to relay info between client and server
-//server will interface with Database, then pipe results back to client
+//define REST API calls here
 
-//initClient(); describeTable();
+const app = express()
+app.use(bodyParser.json());
+app.use(express.static("public"))
+
+app.route("/ddb")
+  .get(function(req,res){
+    describeTable()
+    //send table data to client
+    res.send("Hello world from /ddb!!!")
+  })
+  .post(function(req,res){
+    console.log(req.body.title)
+    //write to database, then send status code only
+    res.send("POST received")
+  })
+
+app.listen(8080) //run server, access via ip:port
+console.log("server listening on port 8080")
