@@ -194,6 +194,15 @@ h1, p{
     height: 10em;
     border: 1px green solid;
 }
+#scoreCalculator{
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    width: 60%;
+    margin-left: 20%;
+    text-align: right;
+}
+
 figure{
     display: inline-block;
     margin-left: 1em;

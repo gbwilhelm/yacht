@@ -12,7 +12,7 @@ Vue.component('game-welcome',{
 Vue.component('game-main',{
   data: function(){
     return{
-      mainState: 0 //0 is rolling dice, 1 is scoring
+      mainState: 0 //0 is rolling dice, 1 is scoring, 2 is final review
     }
   },
   methods:{
@@ -20,23 +20,35 @@ Vue.component('game-main',{
       this.$emit("rolled")
     },
     beginScoring: function(roll){
-      console.log("begin scoring phase")
-      this.mainState = 1
-      this.$refs.scoreCalculator.calculateScores(roll)
+        this.mainState = 1
+        this.$refs.scoreCalculator.calculateScores(roll)
     },
     scoreConfirmed: function(choice,scores){
       this.mainState = 0
-      this.$emit("score-confirmed",choice)
       //start next roll after emit is done
       this.$refs.scoreboard.updateScores(scores)
-      this.$refs.dice.rollDice()
+
+      if(this.$parent.roundNumber===12 && this.$parent.rollNumber===3){
+        //don't continue at end of game
+        this.$emit("final-score",scores)
+        this.mainState=2 //waits for button press
+      }else{
+        this.$refs.dice.rollDice()
+      }
+    },
+    submitReview: function(){
+      this.$emit("rolled") //reuse signal, will trigger game state change
     }
   },
   template: '<div>\
             <p>MAIN GAME LOOP...</p>\
             <p>mainState: {{mainState}}</p>\
-            <dice ref="dice" v-on:rolled="rolled" v-on:begin-scoring="beginScoring"></dice>\
+            <dice ref="dice" v-show="mainState!=2" v-on:rolled="rolled" v-on:begin-scoring="beginScoring"></dice>\
             <scoreCalculator ref="scoreCalculator" v-show="mainState===1" v-on:score-confirmed="scoreConfirmed"></scoreCalculator>\
+            <div v-show="mainState===2">\
+              <p>You may review your score card. When ready, click Continue.</p>\
+              <button v-on:click="submitReview">Continue</button>\
+            </div>\
             <scoreboard ref="scoreboard"></scoreboard>\
             </div>'
 })
@@ -57,10 +69,8 @@ Vue.component('dice',{
   },
   methods: {
     rollDice: function(){
-      console.log("rolling dice... (roll number"+this.$parent.$parent.rollNumber+")")
       //unlock all dice before first roll of round
       if(this.$parent.$parent.rollNumber===0 || this.$parent.$parent.rollNumber===3){
-        console.log("first roll, unlocking all dice")
         this.diceLocked.forEach((val,i)=>{
           if(val){
             let dice = document.getElementById("dice"+i)
@@ -81,7 +91,6 @@ Vue.component('dice',{
       this.$emit("rolled") //will increment roll count to 1 2 or 3
       //lock all dice after third roll of round
       if(this.$parent.$parent.rollNumber===3){
-        console.log("Last roll detected, locking remaining dice")
         this.diceLocked.forEach((val,i)=>{
           if(!val){
             let dice = document.getElementById("dice"+i)
@@ -505,9 +514,7 @@ Vue.component('scoreCalculator',{
         return score;
     }
   },
-  //TODO: change css tags
-  template: '<div id=diceComponentSub>\
-            <label>Choice <strong>{{choice}}</strong></label>\
+  template: '<div id=scoreCalculator>\
             <select v-model="choice">\
               <option disabled value="">Please select a category</option>\
               <option v-for="category in possibleCategories" v-bind:value="category">{{category.name}} ({{category.score}})</option>\
@@ -529,8 +536,6 @@ Vue.component('scoreboard',{
       for(let i=0; i<temp.length; i++){
         if(temp[i]<0)temp[i]='-'
       }
-      console.log(newScores)
-      console.log(temp)
       this.scores = [...temp] //this triggers the Vue update
     }
   },
@@ -557,8 +562,26 @@ Vue.component('scoreboard',{
 
 //game results component
 Vue.component('game-results',{
+  data: function(){
+    return{
+      total: 0,
+      scores: []
+    }
+  },
+  methods: {
+    init: function(t,s){
+      this.total=t
+      this.scores = [...s]
+    }
+  },
+  mounted(){
+    //make sure component is mounted before parent tries to access
+    this.$emit("results-rendered")
+  },
   template: '<div>\
-            <p>GAME OVER...</p>\
+            <h1>GAME OVER</h1>\
+            <p>You scored {{total}} points.</p>\
+            <p>{{scores}}</p>\
             <button v-on:click=\"$emit(\'restart-game\',true)\">Save Game</button>\
             <button v-on:click=\"$emit(\'restart-game\',false)\">Do Not Game</button>\
             </div>'
@@ -571,7 +594,8 @@ var game = new Vue({
     roundNumber: 0, //keeps track of scoring rounds range(1,12, reset to 0 on game over)
     rollNumber: 0, //keeps track of rolls range(1,3 only 0 before first roll of game)
     rollValues: [], //values for the round's final roll
-    scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+    scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+    total: 0
   },
   computed: {
     gameComponent: function(){
@@ -585,7 +609,6 @@ var game = new Vue({
   watch: {
     roundNumber: function(){
       if(this.roundNumber > 12){ //roundNumber will be 13 when the game ends
-        console.log("Round limit exceeded, ending game")
         this.roundNumber=0
         this.gameEnd()
       }
@@ -599,30 +622,29 @@ var game = new Vue({
   },
   methods: {
     startGame: function(){
-      //instantiate variables and other setup
-      console.log("starting game...")
+      //instantiate variables and other setup for second game
       this.mainEngine()
 
     },
     mainEngine: async function(){
       //main game loop, use Vue components for dice and i/o operations
-      console.log("beginning game loop...")
       this.gameState=1
       this.roundNumber=1
+      this.rollNumber=0
     },
     gameEnd: function(){
-      //ask if user wants to save game
-      console.log("game finished")
+      //transition to results screen
       this.gameState = 2
-
+      this.total=0
+      for(let i=0; i<this.scores.length; i++){
+        this.total+=this.scores[i]
+      }
     },
     saveGame: function(flag){
       //show Vue component with input form, ask for confirmation before accepting
       //write to DynamoDB
       if(flag){
         console.log("saving game to database...")
-      }else{
-        console.log("game was not saved")
       }
       this.gameState = 0
     },
@@ -632,13 +654,13 @@ var game = new Vue({
     rolled: function(){
       this.rollNumber++
     },
-    scoreConfirmed: function(score){
-      console.log("main, score confirmed: "+score.score+" for category "+score.code)
-
+    setFinalScore: function(s){
+      this.scores = [...s]
+    },
+    setResults: function(){
+      console.log("Final Game Score: ["+this.scores+"]. Total = "+this.total)
+      this.$refs.mainComponent.init(this.total,this.scores)
     }
-  },
-  beforeMount(){
-    console.log("Vue script loaded")
   }
 })
 
