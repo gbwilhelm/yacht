@@ -592,11 +592,12 @@ Vue.component('game-results',{
 Vue.component('save-component',{
   data: function(){
     return{
-      name: 'a',
-      title: 'b',
-      comment: 'c',
-      scores: [],
-      total: 0,
+      name: 'testName',
+      title: 'testTitle',
+      comment: 'testComment',
+      public: true,
+      scores: [-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13],
+      total: -91,
       disabled: false
     }
   },
@@ -612,7 +613,7 @@ Vue.component('save-component',{
     submit: async function(){
       this.disabled = true //do not allow double submit unless request failed
       //data will be formatted server-side
-      let data = {name:this.name,title:this.title,comment:this.comment,scores:this.scores,total:this.total}
+      let data = {name:this.name,title:this.title,comment:this.comment,public:this.public,scores:this.scores,total:this.total}
       let ret = await this.sendData(data)
       if(ret.status===200){
         this.$emit("data-sent",ret.response)
@@ -638,10 +639,12 @@ Vue.component('save-component',{
   template: '<div><h1>Database Save Form</h1>\
             <div id=databaseForm>\
               <label>Please enter a name.</label><br>\
-              <input v-model="name"></input><br>\
+              <input v-model="name" maxlength="30"></input><br>\
               <label>Please enter a game title.</label><br>\
-              <input v-model="title"></input><br>\
+              <input v-model="title" maxlength="30"></input><br>\
               <label>Feel free to leave an optional comment (max 280 characters).</label><br>\
+              <input type="checkbox" v-model="public"></input>\
+              <label>Check this box to make your comment public on the leaderboard.<\label>\
               <textarea v-model="comment" maxlength="280"></textarea><br>\
               <button v-on:click="submit" :disabled="!name || !title || disabled">Submit</button>\
             </div></div>'
