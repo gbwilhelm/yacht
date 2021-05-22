@@ -6,8 +6,6 @@ yarn add express
 
 yarn add body-parser
 
-yarn add md5
-
 yarn add aws-sdk
 
 npm start
