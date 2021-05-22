@@ -1,19 +1,19 @@
 const express = require("express")
 const bodyParser = require("body-parser")
-const md5 = require("md5")
 const aws = require("aws-sdk")
 
-const VERBOSE = false //toggles logging
+const VERBOSE = true //toggles logging
 
 aws.config.update({region: 'us-east-1'});
 const ddb = new aws.DynamoDB({apiVersion: '2012-08-10'});
 
 const fetchLeaderboard = async function(){
   if(VERBOSE)console.log("sending scan request...")
-  const params = {TableName:"project-yacht",Limit:"3",IndexName:"key-total-index"}
+  const params = {TableName:"project-yacht",Limit:"10",KeyConditionExpression:"#v = :v",ScanIndexForward:false,
+                  ExpressionAttributeNames:{"#v":"version"},ExpressionAttributeValues:{":v":{S:"web"}}}
   const run = async () => {
     try{
-      let data = await ddb.scan(params).promise()
+      let data = await ddb.query(params).promise()
       if(VERBOSE)console.log("scan success")
       return data['Items']
     }catch(err){
@@ -26,9 +26,9 @@ const fetchLeaderboard = async function(){
 
 const writeTable = async function(data){
   if(VERBOSE)console.log("preparing to write to database...")
-  //all data fields must be strings
+  //all numeric data fields must be strings
   const params = {TableName: 'project-yacht',
-                  Item:{'key':{B:md5(data.title+data.name+data.total)},'title':{S:data.title},'name':{S:data.name},'total':{N:data.total.toString()},
+                  Item:{'version':{S:'web'},'title':{S:data.title},'name':{S:data.name},'total':{N:data.total.toString()},
                     'ones':{N:data.scores[0].toString()},'twos':{N:data.scores[1].toString()},'threes':{N:data.scores[2].toString()},
                     'fours':{N:data.scores[3].toString()},'fives':{N:data.scores[4].toString()},'sixes':{N:data.scores[5].toString()},
                     'bonus':{N:data.scores[6].toString()},'full_house':{N:data.scores[7].toString()},'four_kind':{N:data.scores[8].toString()},
