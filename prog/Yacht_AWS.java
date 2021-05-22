@@ -24,11 +24,11 @@ import java.security.MessageDigest;
 public class Yacht{
     private Random rand = new Random();
     private Scanner scanner = new Scanner(System.in);
-    
+
     static AmazonDynamoDB dynamoDB;
 
-    static boolean DEBUG_MODE = true;  
-    
+    static boolean DEBUG_MODE = true;
+
     private enum e_categories{
         Ones,Twos,Threes,Fours,Fives,Sixes,Bonus,Full_House,Four_of_a_Kind,Little_Straight,Big_Straight,Choice,Yacht
     }
@@ -68,7 +68,7 @@ public class Yacht{
                 while(rollCount<3){
                     for(Dice d:dice){
                         if(d.toRoll){d.value = rand.nextInt(6)+1;}
-                    }                 
+                    }
                     ++rollCount;
                     System.out.print("Roll "+rollCount+". ");printDice(dice,false);
                     if(rollCount<3 && !chooseDice(dice))break; //don't reroll if all dice are kept, cannot choose on last roll
@@ -87,7 +87,7 @@ public class Yacht{
                         categories[a]=(scores[a]<0);
                     }
                 }
-                //display available categories               
+                //display available categories
                 for(Enum e: e_categories.values()){
                     if(categories[e.ordinal()]){
                         System.out.println("\tOption "+(e.ordinal()+1)+": "+e.name());
@@ -134,9 +134,7 @@ public class Yacht{
             credentialsProvider.getCredentials();
         } catch (Exception e) {
             throw new AmazonClientException(
-                    "Cannot load the credentials from the credential profiles file. " +
-                    "Please make sure that your credentials file is at the correct " +
-                    "location (C:\\Users\\garre\\.aws\\credentials), and is in valid format.",
+                    "Cannot load the credentials from the credential profiles file. ",
                     e);
         }
         dynamoDB = AmazonDynamoDBClientBuilder.standard()
@@ -144,28 +142,18 @@ public class Yacht{
             .withRegion("us-east-1")
             .build();
     }
-    
+
     //write game data to database
     private void saveToDatabase(String name, String title, int[] scores, int total){
         System.out.println("Saving score for Player:"+name+" as Game:"+title+"...");
         try {
         	initDatabaseObject();
-        	
-	        String tableName = "yacht-scores";
 
-	        //create new table with primary key as binary "key" with sort key as string "title", provision 1 r/w unit for cost effectiveness
-	        //table will be tagged and assigned a resource group in the Management Console
-	        /*CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
-	                .withKeySchema(new KeySchemaElement().withAttributeName("key").withKeyType(KeyType.HASH),
-	                		new KeySchemaElement().withAttributeName("title").withKeyType(KeyType.RANGE))
-	                .withAttributeDefinitions(new AttributeDefinition().withAttributeName("key").withAttributeType(ScalarAttributeType.B),
-	                		new AttributeDefinition().withAttributeName("title").withAttributeType(ScalarAttributeType.S))
-	                .withProvisionedThroughput(new ProvisionedThroughput().withReadCapacityUnits(1L).withWriteCapacityUnits(1L));
-	        TableUtils.createTableIfNotExists(dynamoDB, createTableRequest);*/
-	        
+	        String tableName = "project-yacht";
+
 	        // wait for the table to move into ACTIVE state
 	        TableUtils.waitUntilActive(dynamoDB, tableName);
-	            
+
 	        // Add an item
 	        Map<String, AttributeValue> item = newItem(title, name, scores, total);
 	        PutItemRequest putItemRequest = new PutItemRequest(tableName, item);
@@ -176,15 +164,12 @@ public class Yacht{
         }
         System.out.println("\tSaving complete!");
     }
-    
+
     //modified AWS snippet for helper data structure
     private static Map<String, AttributeValue> newItem(String title, String name, int[] scores, int total) throws Exception{
         Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
-        
-        //use MD5 hash of game title with player name and score as database key, this should allow for multiple entries with the same game name
-        ByteBuffer hash = ByteBuffer.wrap(MessageDigest.getInstance("MD5").digest((title+name+total).getBytes()));
-        
-        item.put("key", new AttributeValue().withB(hash.asReadOnlyBuffer()));
+				//no comment on java version
+        item.put("key", new AttributeValue("java"));
         item.put("title", new AttributeValue(title));
         item.put("name", new AttributeValue(name));
         item.put("total", new AttributeValue().withN(Integer.toString(total)));
@@ -264,7 +249,7 @@ public class Yacht{
                 if(!dice[in-1].fixed)dice[in-1].toRoll^=true;
             }
         }
-        
+
         for(Dice d:dice){
             if(d.toRoll){
                 reroll= true;
@@ -301,7 +286,7 @@ public class Yacht{
                 }else{
                     if(second==-1 && d!=first){
                         second=d; secondCount++;
-                    }else{ 
+                    }else{
                         if(d != first && d != second){ //third number detected
                             break;
                         }
@@ -314,7 +299,7 @@ public class Yacht{
         }
         //four-of-a-kind
         if(scores[8]<0){
-            int primary; //primary is a double match       
+            int primary; //primary is a double match
             if(dice[0]==dice[1]){
                 primary = dice[0];
             }if(dice[0]==dice[2]){
@@ -343,7 +328,7 @@ public class Yacht{
                 }
             }
         }
-        
+
         Arrays.sort(dice);
         //little straight
         if(scores[9]<0){
@@ -426,7 +411,7 @@ public class Yacht{
                 }break;
             case 12://yacht
                 score=50;break;
-                
+
         }
         return score;
     }
@@ -451,7 +436,7 @@ public class Yacht{
             int subtotal=0;
             for(int i=0; i<6; i++){
                 if(scores[i]<0)return; //short-circuit when scoring is incomplete
-                subtotal+=scores[i];               
+                subtotal+=scores[i];
             }
             if(subtotal>62){
                 scores[6]=30;
@@ -506,7 +491,7 @@ public class Yacht{
     }
 //--------------------------------------------------------------------------------
     //value-flag pair wrapper
-    private class Dice{ 
+    private class Dice{
         public int value;
         public boolean toRoll;
         public boolean fixed;
@@ -544,7 +529,7 @@ public class Yacht{
                         if(result[7])System.out.print("ED OTHER CATEGORY");
                         System.out.println();
                     }
-                System.out.print("\tTest Array: [1,4,1,4,1]");    
+                System.out.print("\tTest Array: [1,4,1,4,1]");
                     dice = new int[]{1,4,1,4,1}; //randomized
                     result = calculateRollOptions(dice, scores);
                     if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
@@ -560,7 +545,7 @@ public class Yacht{
                         if(result[7])System.out.print("ED OTHER CATEGORY");
                         System.out.println();
                     }
-            
+
             //Yacht
             System.out.println("Testing Yacht Detection, Contains Four-of-a-Kind");
                 System.out.print("\tTest Array: [2,2,2,2,2]");
