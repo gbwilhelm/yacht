@@ -658,7 +658,7 @@ var game = new Vue({
     rollNumber: 0, //keeps track of rolls range(1,3 only 0 before first roll of game)
     rollValues: [], //values for the round's final roll
     scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-    total: 0
+    total: 5
   },
   computed: {
     gameComponent: function(){

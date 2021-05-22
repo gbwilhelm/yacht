@@ -3,54 +3,46 @@ const bodyParser = require("body-parser")
 const md5 = require("md5")
 const aws = require("aws-sdk")
 
-//Define AWS functions here
+const VERBOSE = true //toggles logging
 
-//const ddbClient = new DynamoDBClient({region:"us-east-1"})
 aws.config.update({region: 'us-east-1'});
-const ddbClient = new aws.DynamoDB({apiVersion: '2012-08-10'});
+const ddb = new aws.DynamoDB({apiVersion: '2012-08-10'});
 
-const describeTable = async function(){
-  const params = {TableName:"yacht-scores"};
+const fetchLeaderboard = async function(){
+  if(VERBOSE)console.log("sending scan request...")
+  const params = {TableName:"project-yacht",Limit:"1",IndexName:"key-total-index"}
   const run = async () => {
-    try {
-      const data = await ddbClient.send(new DescribeTableCommand(params))
-      return data
-    } catch (err) {
-      console.log("Error",err)
-      return err
+    try{
+      let data = await ddb.scan(params).promise()
+      if(VERBOSE)console.log("scan success")
+      return data['Items']
+    }catch(err){
+      throw err
     }
-  };
+  }
   res = await run()
   return res
 }
 
 const writeTable = async function(data){
-  console.log("preparing to write to database...")
+  if(VERBOSE)console.log("preparing to write to database...")
   //all data fields must be strings
-  const params = {TableName: 'yacht-scores',
-                  Item:{'key':{B:md5(data.title+data.name+data.total).toString()},'title':{S:data.title},'name':{S:data.name},'total':{N:data.total.toString()},
+  const params = {TableName: 'project-yacht',
+                  Item:{'key':{B:md5(data.title+data.name+data.total)},'title':{S:data.title},'name':{S:data.name},'total':{N:data.total.toString()},
                     'ones':{N:data.scores[0].toString()},'twos':{N:data.scores[1].toString()},'threes':{N:data.scores[2].toString()},
                     'fours':{N:data.scores[3].toString()},'fives':{N:data.scores[4].toString()},'sixes':{N:data.scores[5].toString()},
                     'bonus':{N:data.scores[6].toString()},'full_house':{N:data.scores[7].toString()},'four_kind':{N:data.scores[8].toString()},
                     'little_s':{N:data.scores[9].toString()},'big_s':{N:data.scores[10].toString()},'choice':{N:data.scores[11].toString()},
-                    'yacht':{N:data.scores[12].toString()},'comment':{S:data.comment},'public':{B:data.public.toString()}}}
+                    'yacht':{N:data.scores[12].toString()},'comment':{S:data.comment},'public':{BOOL:data.public}}}
   const run = async () => {
     try {
-      ddbClient.putItem(params, function(err2, data2) {
-        console.log("write operation finished")
-        if (err2) {
-          console.log("Write Error:",err2)
-          throw err2
-        } else {
-          console.log("write success")
-          return data2
-        }
-      });
-    } catch (err) {
-      console.log("Error",err)
+      let data = await ddb.putItem(params).promise()
+      if(VERBOSE)console.log("put success")
+      return data
+    }catch(err){
       throw err
     }
-  };
+  }
   res = await run()
   return res
 }
@@ -63,25 +55,25 @@ app.use(express.static("public"))
 
 app.route("/ddb")
   .get(async function(req,res){
-    console.log("GET request received")
+    if(VERBOSE)console.log("GET request received")
     try{
-      responseData = await describeTable()
-      console.log("Table info",responseData.Table.KeySchema)
+      responseData = await fetchLeaderboard()
+      if(VERBOSE)console.log("Scan Result:\n",responseData)
       //send table data to client
-      res.status(200).send("Hello world from /ddb!!!")
+      res.status(200).send(responseData)
     }catch(e){
       res.status(500).send("error:\n"+e)
     }
   })
   .post(async function(req,res){
-    console.log("POST request received, body:\n",req.body)
+    if(VERBOSE)console.log("POST request received, body:\n",req.body)
     try{
       //write to database, then send status code only
       responseData = await writeTable(req.body)
-      console.log("sending 200 back to client")
+      if(VERBOSE)console.log("sending 200 back to client")
       res.sendStatus(200)
     }catch(e){
-      console.log("sending error to client\n",e)
+      if(VERBOSE)console.log("sending error to client\n",e)
       res.status(500).send("error:\n"+e)
     }
   })
