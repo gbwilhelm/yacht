@@ -28,7 +28,7 @@ Categories:
 
 NOTE: The player must score in a valid category before being allowed to zero a category
 
----UPDATE 5/10/2021
+---UPDATE Started 5/10/2021
 
 I aim to incrementally deploy this finished program to AWS.
 
@@ -37,9 +37,7 @@ Currently, the Java program successfully writes to DynamoDB, which triggers a La
 Note: The AWS version source code is Yacht_AWS.java, I will not include the entire build on this repository. The non-AWS version has no dependencies and can be run on any Java platform, however the AWS version is built using the AWS SDK in Eclipse.
 
 The remaining stages are as follows:
-1. Construct local web version
-	1. Construct skeleton website: About/Home, Game, Leaderboard pages
-	2. Convert Java to Javascript, integrate with front end via Vue
+1. Cleanup website css
 2. Move project to AWS
 	1. Provision EC2 server, install NGINX and node.js
 	2. Upload project .zip to S3, download on EC2

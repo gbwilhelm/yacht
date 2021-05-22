@@ -3,14 +3,14 @@ const bodyParser = require("body-parser")
 const md5 = require("md5")
 const aws = require("aws-sdk")
 
-const VERBOSE = true //toggles logging
+const VERBOSE = false //toggles logging
 
 aws.config.update({region: 'us-east-1'});
 const ddb = new aws.DynamoDB({apiVersion: '2012-08-10'});
 
 const fetchLeaderboard = async function(){
   if(VERBOSE)console.log("sending scan request...")
-  const params = {TableName:"project-yacht",Limit:"1",IndexName:"key-total-index"}
+  const params = {TableName:"project-yacht",Limit:"3",IndexName:"key-total-index"}
   const run = async () => {
     try{
       let data = await ddb.scan(params).promise()
@@ -62,6 +62,7 @@ app.route("/ddb")
       //send table data to client
       res.status(200).send(responseData)
     }catch(e){
+      if(VERBOSE)console.log("sending error to client\n",e)
       res.status(500).send("error:\n"+e)
     }
   })
