@@ -23,7 +23,12 @@
   </div>
   <div id="leaderboard">
     <h1>Yacht Leaderboard</h1>
-    <p>The top 10 highest scores will be displayed here. Script will read from DynamoDB and format results for display.</p>
+    <!--Could add functionallity that shows the player's full scorecard to right on hover-->
+    <table v-if="entries.length>0">
+      <tr><th>Name</th><th>Game Title</th><th>Score</th><th>Comment</th></tr>
+      <tr v-for="entry in entries"><td>{{entry.name.S}}</td><td>{{entry.title.S}}</td><td>{{entry.total.N}}</td><td v-if="entry.public.BOOL">{{entry.comment.S}}</td><td v-else>---</td></tr>
+    </table>
+    <p v-else>No entries found</p>
   </div>
   <script src="leaderboard.js" type="module"></script>
 </body>

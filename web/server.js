@@ -2,19 +2,19 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const aws = require("aws-sdk")
 
-const VERBOSE = true //toggles logging
+const VERBOSE = false //toggles logging
 
 aws.config.update({region: 'us-east-1'});
 const ddb = new aws.DynamoDB({apiVersion: '2012-08-10'});
 
 const fetchLeaderboard = async function(){
-  if(VERBOSE)console.log("sending scan request...")
+  if(VERBOSE)console.log("sending query...")
   const params = {TableName:"project-yacht",Limit:"10",KeyConditionExpression:"#v = :v",ScanIndexForward:false,
                   ExpressionAttributeNames:{"#v":"version"},ExpressionAttributeValues:{":v":{S:"web"}}}
   const run = async () => {
     try{
       let data = await ddb.query(params).promise()
-      if(VERBOSE)console.log("scan success")
+      if(VERBOSE)console.log("query success")
       return data['Items']
     }catch(err){
       throw err

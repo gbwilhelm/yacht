@@ -1,14 +1,7 @@
 var app = new Vue({
   el: '#leaderboard',
   data: {
-    ddbClient: '',
-    flag: false
-  },
-  computed: {
-
-  },
-  watch: {
-
+    entries: []
   },
   methods: {
     fetchData: async function(data){
@@ -19,15 +12,10 @@ var app = new Vue({
     }
   },
   mounted(){
-    //nextTick ensures child components have loaded
+    //only fetch from databse once, when app has finished loading
     this.$nextTick(async function () {
       let response = await this.fetchData()
-      let body = JSON.parse(response.response)
-      console.log("response:",body)
-      //TODO: run more tests to ensure the indexed scan returned the top scores
-      for(let i=0; i<body.length; i++){
-        console.log("Player: "+body[i].name.S+"\tTotal:"+body[i].total.N)
-      }
+      this.entries = [...JSON.parse(response.response)]
     })
   }
 })
