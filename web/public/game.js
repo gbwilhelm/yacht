@@ -596,8 +596,8 @@ Vue.component('save-component',{
       title: 'testTitle',
       comment: 'testComment',
       public: true,
-      scores: [-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13],
-      total: -91,
+      scores: [],
+      total: 0,
       disabled: false
     }
   },
@@ -613,10 +613,10 @@ Vue.component('save-component',{
     submit: async function(){
       this.disabled = true //do not allow double submit unless request failed
       //data will be formatted server-side
-      let data = {name:this.name,title:this.title,comment:this.comment,public:this.public,scores:this.scores,total:this.total}
+      let data = {name:this.name,title:this.title,scores:this.scores,total:this.total,comment:this.comment,public:this.public}
       let ret = await this.sendData(data)
       if(ret.status===200){
-        this.$emit("data-sent",ret.response)
+        this.$emit("data-sent",ret.status)
       }else{
         //not much to be done on failure, but user can try to submit again
         window.alert("Request failed with HTTP status "+ret.status)
@@ -628,9 +628,9 @@ Vue.component('save-component',{
       console.log("sending data...")
       //send post request to server with data
       var req = new XMLHttpRequest() //can block since its inside async function called by other async function
-      req.open("POST","/ddb",false)
+      req.open("POST","ddb",false)
       req.setRequestHeader("Content-Type","application/json;charset=UTF-8") //needed for POST
-      req.send(JSON.stringify(data))
+      req.send(JSON.stringify(data)) //blocking send
       console.log("RESPONSE RECEIVED")
       console.log(req)
       return req
@@ -644,7 +644,7 @@ Vue.component('save-component',{
               <input v-model="title" maxlength="30"></input><br>\
               <label>Feel free to leave an optional comment (max 280 characters).</label><br>\
               <input type="checkbox" v-model="public"></input>\
-              <label>Check this box to make your comment public on the leaderboard.<\label>\
+              <label>Check this box to make your comment public on the leaderboard.</label>\
               <textarea v-model="comment" maxlength="280"></textarea><br>\
               <button v-on:click="submit" :disabled="!name || !title || disabled">Submit</button>\
             </div></div>'
@@ -727,7 +727,7 @@ var game = new Vue({
       this.$refs.mainComponent.init(this.total,this.scores)
     },
     dataSent: function(ret){
-      window.alert("Data sent.\nDatabase returned "+ret)
+      window.alert("Data sent successfully!\nThank you very much, feel free to play again!")
       this.gameState = 0
     }
   }

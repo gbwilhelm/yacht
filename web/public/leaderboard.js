@@ -14,11 +14,16 @@ var app = new Vue({
     fetchData: async function(data){
       var xmlHttp = new XMLHttpRequest();
       xmlHttp.open("GET","/ddb",false)
-      xmlHttp.send()
+      xmlHttp.send() //blocking send
       return xmlHttp
     }
   },
   mounted(){
-    this.fetchData()
+    //nextTick ensures child components have loaded
+    this.$nextTick(async function () {
+      let response = await this.fetchData()
+      console.log("response:",response.response)
+      console.log("status:",response.status)
+    })
   }
 })

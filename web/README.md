@@ -6,8 +6,12 @@ yarn add express
 
 yarn add body-parser
 
-yarn add @aws-sdk/client-dynamodb
+yarn add md5
+
+yarn add aws-sdk
 
 npm start
 
 Note: currently reads AWS access credentials from system config file
+
+Note: access from ip addr, running local file causes CORS error

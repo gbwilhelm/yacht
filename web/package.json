@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.16.0",
+    "aws-sdk": "^2.912.0",
     "body-parser": "^1.19.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "md5": "^2.3.0"
   }
 }
