@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500&display=swap" rel="stylesheet">
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
+  <script src="leaderboard.js" type="module"></script>
 </head>
 <body>
   <div id=header>
@@ -22,7 +23,7 @@
     </div>
   </div>
   <noscript><h1 class=err>Please enable JavaScript to view this page.<h1></noscript>
-  <script><div id="leaderboard">
+  <div id="leaderboard">
     <h1><span class=underline>Yacht Leaderboard</span></h1>
     <div id="leaderboardTables">
     <div id=leaderboardTop10><table v-if="entries.length>0">
@@ -61,7 +62,5 @@
     </table><div>
     </div>
   </div>
-  <script src="leaderboard.js" type="module"></script></script>
-
 </body>
 </html>
