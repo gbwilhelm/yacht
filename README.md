@@ -1,15 +1,19 @@
-OUTDATED
+# Introduction
 
-This project aims to refresh my Java programming skills by recreating the classic dice game, Yacht.
+This project aims to refresh my Java and JavaScript programming skills by recreating the classic dice game, Yacht. A more detailed explanation of this project can be found on the web version's homepage.
 
-The main algorithm consists of a parser that reads the result of the dice rolls to display the applicable scoring categories to the player, then compute the chosen score. A text-based interface is also used, which could be further extended to a gui or even an Android project as a further exercise.
+_When I host the web server, the link will be included here._
 
-I aim to incrementally deploy this finished program to AWS.
+The structure of this repository is as follows:
 
-Currently, the Java program successfully writes to DynamoDB, which triggers a Lambda function (code included). The Lambda function extracts the name of the player and total score of the game, then sends a formatted email to an SNS Topic.
+# prog/
 
-Note: The AWS version source code is Yacht_AWS.java, I will not include the entire build on this repository. The non-AWS version has no dependencies and can be run on any Java platform, however the AWS version is built using the AWS SDK in Eclipse.
+* prog/ contains my original Java version of this game that runs on the terminal, an AWS SDK project Java file that hooks the game up to my database, and my AWS Lambda Python script that sends me an email whenever my database is written to.
+* The file Yacht.java can be run as-is; however, Yacht_AWS.java needs dependencies that are not included in this repository.
 
-The remaining stages are as follows:
-1. Cleanup website css
-2. Move project to AWS
+# web/
+
+* web/ contains my node server, yarn configuration, and all the front-end pages and scripts. I also included a README with commands for adding the required node dependencies using yarn.
+* The page index.html has no JavaScript and acts as a landing-page with a brief write-up of this project.
+* The page game.html can be run without the back-end server, however saving to the database would not be possible.
+* The page leaderboard.html requires the back-end server to be running in order to function.
