@@ -42,13 +42,13 @@ Vue.component('game-main',{
   },
   template: '<div>\
             <h1 v-if="mainState<2"><span class=underline>Round Number {{this.$parent.roundNumber}} of 12</span></h1>\
-            <h1 v-if="mainState===2">Game Over</h1>\
+            <h1 v-if="mainState===2"><span class=underline>Game Over</span></h1>\
             <dice ref="dice" v-show="mainState!=2" v-on:rolled="rolled" v-on:begin-scoring="beginScoring"></dice>\
             <score-calculator ref="scoreCalculator" v-show="mainState===1" v-on:score-confirmed="scoreConfirmed"></score-calculator>\
             <div v-show="mainState===2">\
-              <p>You may review your score card. When ready, click Continue.</p>\
+              <p>You may review your score card. When ready, click <span class=bold>Continue</span>.</p><br>\
               <button v-on:click="submitReview">Continue</button>\
-            </div>\
+            </div><br>\
             <scoreboard ref="scoreboard"></scoreboard>\
             </div>'
 })
@@ -65,6 +65,7 @@ Vue.component('dice',{
     }
   },
   beforeMount(){
+    //pre-fetch initial roll
     this.rollDice()
   },
   methods: {
@@ -166,151 +167,6 @@ Vue.component('score-calculator',{
         }
         return true
     },
-    //ported from Java, tests category detection
-    testMethods: function(){
-      var dice;
-      var expected; var result;
-
-      //Full House
-      expected = [true,false,false,true,false,false, false, true,false,false,false,true,false]
-      console.log("Testing Full House Detection (Same Expected Set)");
-          console.log("\tTest Array: [1,1,1,4,4]");
-              dice = [1,1,1,4,4]; //sorted 3-2
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[7])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [1,4,1,1,4]");
-              dice = [1,4,1,1,4]; //randomized
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[7])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [1,4,1,4,1]");
-              dice = [1,4,1,4,1]; //randomized
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[7])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [4,4,1,1,1]");
-              dice = [4,4,1,1,1]; //sorted 2-3
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[7])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-
-      //Yacht
-      console.log("Testing Yacht Detection, Contains Four-of-a-Kind");
-          console.log("\tTest Array: [2,2,2,2,2]");
-              expected = [false,true,false,false,false,false, false, false,true,false,false,true,true];
-              dice = [2,2,2,2,2]; //2s
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[12])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [5,5,5,5,5]");
-              expected = [false,false,false,false,true,false, false, false,true,false,false,true,true];
-              dice = [5,5,5,5,5]; //5s
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[12])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-      //Four-of-a-Kind, 4 matches
-      console.log("Testing Four-of-a-Kind Detection");
-          console.log("\tTest Array: [6,5,5,5,5]");
-              expected = [false,false,false,false,true,true, false, false,true,false,false,true,false];
-              dice = [6,5,5,5,5]; //sorted 1-4
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[8])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [4,4,4,4,1]");
-              expected = [true,false,false,true,false,false, false, false,true,false,false,true,false];
-              dice = [4,4,4,4,1]; //sorted 4-1
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[8])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [2,2,2,3,2]");
-              expected = [false,true,true,false,false,false, false, false,true,false,false,true,false];
-              dice = [2,2,2,3,2]; //mixed
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[8])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-      //Little Straight
-      expected = [true,true,true,true,true,false, false, false,false,true,false,true,false];
-      console.log("Testing Little Straight Detection (Same Expected Set)");
-          console.log("\tTest Array: [1,2,3,4,5]");
-              dice = [1,2,3,4,5]; //sorted
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[9])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [5,4,3,2,1]");
-              dice = [5,4,3,2,1]; //reverse sorted
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[9])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [2,4,1,5,3]");
-              dice = [2,4,1,5,3]; //randomized
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[9])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-      //Big Straight
-      expected = [false,true,true,true,true,true, false, false,false,false,true,true,false];
-      console.log("Testing Big Straight Detection (Same Expected Set)");
-          console.log("\tTest Array: [2,3,4,5,6]");
-              dice = [2,3,4,5,6]; //sorted
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[10])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [6,5,4,3,2]");
-              dice = [6,5,4,3,2]; //reverse sorted
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[10])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-          console.log("\tTest Array: [2,4,6,5,3]");
-              dice = [2,4,6,5,3]; //randomized
-              result = this.calculateRollOptions(dice);
-              if(this.equals(expected,result)){console.log("\tPASS");}else{
-                  console.log("\tFAIL");
-                  if(result[10])console.log("ED OTHER CATEGORY");
-                  console.log();
-              }
-    },
     //entrypoint from game-main, fills possibleCategories using data from roll and allCategories
     calculateScores: function(roll){
       this.possibleCategories.splice(0) //needed for Vue to update render
@@ -330,6 +186,9 @@ Vue.component('score-calculator',{
           }
         })
       }
+      //encountered bug where all categories were scored at round 12, this locked the player out from finishing the game
+      //I have been unable to reliably recreate this bug, it is probably a double submit bug
+      if(!this.possibleCategories)window.alert("Something went wrong. Please refresh and remember to click the buttons slowly")
     },
     //button handler, sends selected option to game-main
     confirmScore: function(){
@@ -341,10 +200,8 @@ Vue.component('score-calculator',{
         if(++this.numericScored===6){
           //check for bonus
           if(this.scores[0]+this.scores[1]+this.scores[2]+this.scores[3]+this.scores[4]+this.scores[5]>62){
-            console.log("achieved bonus!")
             this.choice = this.allCategories[6]
           }else{
-            console.log("no bonus")
             this.choice = this.allCategories[6]; this.choice.score=0
           }
           this.scores[this.choice.code]=this.choice.score
@@ -625,14 +482,14 @@ Vue.component('save-component',{
     },
     sendData: async function(data){
       //attempt to send to DynamoDB
-      console.log("sending data...")
+      //console.log("sending data...")
       //send post request to server with data
       var req = new XMLHttpRequest() //can block since its inside async function called by other async function
       req.open("POST","ddb",false)
       req.setRequestHeader("Content-Type","application/json;charset=UTF-8") //needed for POST
       req.send(JSON.stringify(data)) //blocking send
-      console.log("RESPONSE RECEIVED")
-      console.log(req)
+      //console.log("RESPONSE RECEIVED")
+      //console.log(req)
       return req
     }
   },
@@ -654,12 +511,11 @@ Vue.component('save-component',{
 var game = new Vue({
   el: '#game',
   data: {
-    gameState: 1, //0 is welcome, 1 is main, 2 is results
+    gameState: 0, //0 is welcome, 1 is main, 2 is results, 3 is save
     roundNumber: 0, //keeps track of scoring rounds range(1,12, reset to 0 on game over)
     rollNumber: 0, //keeps track of rolls range(1,3 only 0 before first roll of game)
-    rollValues: [], //values for the round's final roll
     scores: [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-    total: 5
+    total: 0
   },
   computed: {
     gameComponent: function(){
