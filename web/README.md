@@ -1,3 +1,5 @@
+# Install Yarn and dependencies
+
 npm install yarn
 
 yarn install
@@ -8,8 +10,10 @@ yarn add body-parser
 
 yarn add aws-sdk
 
-npm start
+# Launch server
 
-Note: currently reads AWS access credentials from system config file
+npm start or node server.js
 
-Note: access from ip addr, running local file causes CORS error
+# Note
+
+If running locally, use localhost in browser to navigate pages instead of running local .html files, as this prevents a CORS error.
