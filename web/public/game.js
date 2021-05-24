@@ -579,13 +579,13 @@ Vue.component('game-results',{
     //make sure component is mounted before parent tries to access
     this.$emit("results-mounted")
   },
-  template: '<div>\
+  template: '<div id=gameResults>\
             <h1>Thank you for playing!</h1>\
-            <p>You scored {{total}} points.</p>\
+            <h2>You scored {{total}} points.</h2>\
             <p>If you would like to save your score to the global leaderboard, please click Save Game and fill out the appropriate fields.<p>\
-            <p>You may begin a new game after clicking either button.</p>\
+            <p>You may begin a new game after clicking either button.</p><br>\
             <button v-on:click=\"$emit(\'restart-game\',true)\">Save Game</button>\
-            <button v-on:click=\"$emit(\'restart-game\',false)\">Do Not Game</button>\
+            <button v-on:click=\"$emit(\'restart-game\',false)\">Quit Without Saving</button>\
             </div>'
 })
 

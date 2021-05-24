@@ -53,6 +53,7 @@ h1, p{
     text-decoration: none;
     color: var(--white);
     font-weight: 500;
+    transition-duration: 0.25s;
 }
 
 #header button{
@@ -63,6 +64,7 @@ h1, p{
     border: none;
     background: none;
     font-size: 1em;
+    transition-duration: 0.25s;
 }
 
 #header a:hover{
@@ -149,7 +151,7 @@ h1, p{
     fill: var(--blue_3c);
 }
 
-/*Game css*/
+/*game.html*/
 #gameTitle h1{ /*area above game window*/
     text-align: center;
     margin-top: 0.75em;
@@ -166,8 +168,25 @@ h1, p{
     margin-top: 1.5em;
     overflow-y: auto;
 }
+#game h1{
+    color: var(--blue_3c);
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
 #game img{
     border: 1px solid black;
+}
+#game button{
+    font-family: inherit;
+    border-radius: 8px;
+    border: 1px solid var(--gray);
+    padding: 0.5em;
+    background-color: var(--blue_3c);
+    color: var(--white);
+    transition-duration: 0.25s;
+}
+#game button:hover{
+    color: var(--gray);
 }
 #rulesArea{
     border: 2px solid black;
@@ -225,7 +244,14 @@ h1, p{
     margin-left: 20%;
     text-align: right;
 }
-
+#gameResults p{
+    margin-left: 30em;
+    margin-right: 30em;
+}
+#gameResults button{
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
 figure{
     display: inline-block;
     margin-left: 1em;
