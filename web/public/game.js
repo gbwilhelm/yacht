@@ -1,9 +1,9 @@
 //default component in game area
 Vue.component('game-welcome',{
-  template: '<div>\
+  template: '<div id=gameWelcome>\
             <h1>Welcome to Yacht!</h1>\
-            <p>When ready, click \"Start Game\"<br>\
-            To review the rules at any time, click \"Rules\" at the top-right of the page.</p>\
+            <p>To review the rules at any time, click <span class=bold>Rules</span> at the top-right of the page.</p>\
+            <p>When ready, click <span class=bold>Start Game</span>.</p><br>\
             <button v-on:click=\"$emit(\'start-game\')\">Start Game</button>\
             </div>'
 })
@@ -41,7 +41,7 @@ Vue.component('game-main',{
     }
   },
   template: '<div>\
-            <h1 v-if="mainState<2">Round Number {{this.$parent.roundNumber}} of 12</h1>\
+            <h1 v-if="mainState<2"><span class=underline>Round Number {{this.$parent.roundNumber}} of 12</span></h1>\
             <h1 v-if="mainState===2">Game Over</h1>\
             <dice ref="dice" v-show="mainState!=2" v-on:rolled="rolled" v-on:begin-scoring="beginScoring"></dice>\
             <score-calculator ref="scoreCalculator" v-show="mainState===1" v-on:score-confirmed="scoreConfirmed"></score-calculator>\
@@ -129,7 +129,7 @@ Vue.component('dice',{
     }
   },
   template: '<div id=diceComponent>\
-            <h1>Your Roll ({{this.$parent.$parent.rollNumber}} of 3)</h1>\
+            <h2>Your Roll ({{this.$parent.$parent.rollNumber}} of 3)</h2>\
             <p v-show="this.$parent.mainState===0">Choose which dice you want to keep, the rest will be rerolled.</p>\
             <p v-show="this.$parent.mainState===1">Choose which category you want to score in.</p>\
             <div id=diceImageContainer>\
@@ -540,9 +540,9 @@ Vue.component('scoreboard',{
     }
   },
   template: '<div id=score>\
-            <h1>Score Card</h1>\
+            <h1><span class=underline>Score Card</span></h1>\
             <table>\
-              <tr><th>Category</th><th>Score</th></tr>\
+              <tr><th><span class=bold>Category</span></th><th><span class=bold>Score</span></th></tr>\
               <tr class=ones><td>Ones</td><td>{{scores[0]}}</td></tr>\
               <tr class=twos><td>Twos</td><td>{{scores[1]}}</td></tr>\
               <tr class=threes><td>Threes</td><td>{{scores[2]}}</td></tr>\
@@ -654,7 +654,7 @@ Vue.component('save-component',{
 var game = new Vue({
   el: '#game',
   data: {
-    gameState: 2, //0 is welcome, 1 is main, 2 is results
+    gameState: 1, //0 is welcome, 1 is main, 2 is results
     roundNumber: 0, //keeps track of scoring rounds range(1,12, reset to 0 on game over)
     rollNumber: 0, //keeps track of rolls range(1,3 only 0 before first roll of game)
     rollValues: [], //values for the round's final roll

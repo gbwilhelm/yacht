@@ -226,9 +226,15 @@ input, textarea, select{
 #rules li{
     margin: 0.75em;
 }
+#gameWelcome p{
+    margin-bottom: 0.25em;
+}
 #diceComponent{
     width: 60%;
     margin-left: 20%;
+}
+#diceComponent h2{
+    color: var(--blue_3c)
 }
 #diceComponentSub{
     text-align: right;
@@ -254,6 +260,13 @@ input, textarea, select{
     margin-left: 20%;
     text-align: right;
 }
+#score h1{
+    margin-bottom: 0.5em;
+    margin-top: 0;
+}
+#score .underline{
+    padding-bottom: 0.1em;
+}
 #gameResults p{
     margin-left: 30em;
     margin-right: 30em;
@@ -270,6 +283,9 @@ figure{
 
 table{
     margin: 0 auto;
+}
+#score table{
+    margin-bottom: 0.5em;
 }
 table, td, th{
     border: 2px solid black;
