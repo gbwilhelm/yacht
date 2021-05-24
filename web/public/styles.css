@@ -89,6 +89,22 @@ h1, p{
     padding-right: 1em;
 }
 
+.underline{
+    padding-bottom: 0.25em;
+    border-bottom: 3px solid var(--blue_3c)
+}
+.bold{
+    color: var(--blue_3c);
+    text-decoration: bold;
+}
+
+/*index.html*/
+#body h1{
+    text-align: center;
+    margin-top: 0.75em;
+    margin-bottom: 1em;
+    color: var(--blue_3c)
+}
 /*Color palette*/
 # {
     background-color: white;
@@ -134,9 +150,11 @@ h1, p{
 }
 
 /*Game css*/
-#gameTitle{ /*area above game window*/
+#gameTitle h1{ /*area above game window*/
     text-align: center;
     margin-top: 0.75em;
+    margin-bottom: 1em;
+    color: var(--blue_3c)
 }
 #game{ /*playable game area*/
     background-color: white;
@@ -145,7 +163,6 @@ h1, p{
     width: 80%;
     height: 50em;
     margin-left: 10%;
-    /*margin-bottom: 3em;*/
     margin-top: 1.5em;
     overflow-y: auto;
 }
@@ -166,8 +183,19 @@ h1, p{
     margin-left: 1em;
 }
 #rules{
-    border: 1px solid red;
     text-align: center;
+}
+#rules h1, #rules h2{
+    margin: 1em;
+    color: var(--blue_3c)
+}
+#rules ol{
+    text-align: left;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+#rules li{
+    margin: 0.75em;
 }
 #diceComponent{
     width: 60%;
@@ -234,12 +262,14 @@ th{
     width: 600px;
     height: 300px;
 }
+
+/*Leaderboard.html*/
 #leaderboard{
     text-align:center;
 }
 #leaderboard h1{
     color: var(--blue_3c);
-    margin-top: 1em;
+    margin-top: 0.75em;
     margin-bottom: 1em;
 }
 #leaderboard table{

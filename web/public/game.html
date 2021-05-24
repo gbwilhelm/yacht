@@ -25,12 +25,42 @@
   </div>
   <div id=rulesArea>
     <div id=rules v-if="showRules">
-      <h1>Rules of Yacht</h1>
-      <p>Rules will go here</p>
+      <h1><span class=underline>Rules of Yacht</span></h1>
+      <p>The game is played in 12 rounds, which can be broken down into two phases: the Roll Phase and the Scoring Phase.</p>
+
+      <h2><span class=underline>Roll Phase</span></h2><ol>
+      <li>The player rolls all five dice on the first roll each round.</li>
+      <li>After rolling, the player can choose which dice to keep, all non-kept dice will be rerolled. Once a dice is kept, it cannot be rerolled.</li>
+      <li>There are a total of 2 rerolls, after which the Scoring Phase begins.</li></ol>
+
+      <h2><span class=underline>Scoring Phase</span></h2><ol>
+      <li>The player chooses to score in any available category that the final roll matches. For user convenience, the available categories and their potential score value will be shown to the player.</li>
+      <li>The player cannot score in a category that has already been scored.</li>
+      <li>If the final roll does not match any available scoring category, then the player must to put a zero in any available category.</li>
+      <li>The game ends when all categories have been scored, which lasts 12 total rounds per player.</li>
+      <li>The final score is simply the addition of all categories, including a bonus for the single-number categories if achieved.</li></ol>
+
+      <h2><span class=underline>Scoring Categories</span></h2><ol>
+      <li><span class=bold>Ones:</span> Sum of ones dice</li>
+      <li><span class=bold>Twos:</span> Sum of twos dice</li>
+      <li><span class=bold>Threes:</span> Sum of threes dice</li>
+      <li><span class=bold>Fours:</span> Sum of fours dice</li>
+      <li><span class=bold>Fives:</span> Sum of fives dice</li>
+      <li><span class=bold>Sixes:</span> Sum of sixes dice</li>
+      <li><span class=bold>Bonus:</span> 35 points if single number scores are greater than 62</li>
+      <li><span class=bold>Full House:</span> A pair of three and a pair of two, score is sum of all dice</li>
+      <li><span class=bold>Four-of-a-Kind:</span> At least four matching dice, sum of the four matching dice</li>
+      <li><span class=bold>Little Straight:</span> 1-2-3-4-5, 30 points</li>
+      <li><span class=bold>Big Straight:</span> 2-3-4-5-6, 30 points</li>
+      <li><span class=bold>Choice:</span> Sum of all dice</li>
+      <li><span class=bold>Yacht:</span> Five-of-a-Kind, 50 points</li></ol>
+
+      <br><br><br><p>These rules for Yacht were taken from Wikipedia: <a href="https://en.wikipedia.org/wiki/Yacht_(dice_game)">https://en.wikipedia.org/wiki/Yacht_(dice_game)</a></p><br>
     </div>
+
   </div>
   <div id=gameTitle>
-    <h1 id=gameTitle>Yacht Game</h1>
+    <h1><span class=underline>Yacht Game</span></h1>
   </div>
   <div id="game">
     <div id=gameArea>
