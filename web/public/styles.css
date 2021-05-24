@@ -100,6 +100,10 @@ h1, p{
     text-decoration: bold;
 }
 
+input, textarea, select{
+    font-family: inherit;
+}
+
 /*index.html*/
 #body h1{
     text-align: center;
@@ -187,6 +191,12 @@ h1, p{
 }
 #game button:hover{
     color: var(--gray);
+}
+#game button:disabled{
+    color: var(--blue_3c);
+    background-color: var(--gray);
+    text-decoration: line-through;
+    border: 1px solid var(--blue_3c);
 }
 #rulesArea{
     border: 2px solid black;
@@ -288,7 +298,10 @@ th{
     width: 600px;
     height: 300px;
 }
-
+#databaseForm input, #databaseForm textarea{
+    margin-bottom: 1em;
+    margin-top: 0.25em;
+}
 /*Leaderboard.html*/
 #leaderboard{
     text-align:center;

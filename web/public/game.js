@@ -592,10 +592,10 @@ Vue.component('game-results',{
 Vue.component('save-component',{
   data: function(){
     return{
-      name: 'testName',
-      title: 'testTitle',
-      comment: 'testComment',
-      public: true,
+      name: '',
+      title: '',
+      comment: '',
+      public: false,
       scores: [],
       total: 0,
       disabled: false
@@ -638,14 +638,15 @@ Vue.component('save-component',{
   },
   template: '<div><h1>Database Save Form</h1>\
             <div id=databaseForm>\
-              <label>Please enter a name.</label><br>\
-              <input v-model="name" maxlength="30"></input><br>\
+              <label>Please enter a username.</label><br>\
+              <input v-model="name" maxlength="30" placeholder="Username is required."></input><br>\
               <label>Please enter a game title.</label><br>\
-              <input v-model="title" maxlength="30"></input><br>\
+              <input v-model="title" maxlength="30" placeholder="Game title is required."></input><br>\
               <label>Feel free to leave an optional comment (max 280 characters).</label><br>\
               <input type="checkbox" v-model="public"></input>\
               <label>Check this box to make your comment public on the leaderboard.</label>\
-              <textarea v-model="comment" maxlength="280"></textarea><br>\
+              <textarea v-model="comment" maxlength="280" placeholder="Comment is optional."></textarea><br>\
+              <p>Please keep in mind that this data will be displayed on the public leaderboard!</p>\
               <button v-on:click="submit" :disabled="!name || !title || disabled">Submit</button>\
             </div></div>'
 })
