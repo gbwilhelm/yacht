@@ -342,3 +342,18 @@ th{
     margin-bottom: 0.5em;
     color: var(--blue_3c);
 }
+#leaderboardScore{
+    float:left;
+    margin-left: 1%;
+}
+#leaderboardTop10{
+    float:left;
+    margin-left: 20%;
+}
+#leaderboardTables{
+}
+.err{
+    color:red;
+    text-align:center;
+    font-size:5em;
+}

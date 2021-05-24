@@ -21,26 +21,47 @@
       <a id=ghub href="https://github.com/gbwilhelm/yacht"><i class="fab fa-github"></i>  Source Code</a>
     </div>
   </div>
-  <div id="leaderboard">
+  <noscript><h1 class=err>Please enable JavaScript to view this page.<h1></noscript>
+  <script><div id="leaderboard">
     <h1><span class=underline>Yacht Leaderboard</span></h1>
-    <!--Could add functionallity that shows the player's full scorecard to right on hover-->
-    <table v-if="entries.length>0">
+    <div id="leaderboardTables">
+    <div id=leaderboardTop10><table v-if="entries.length>0">
       <tr>
         <th><div class=colHead>Name</div></th>
         <th><div class=colHead>Game Title</div></th>
         <th><div class=colHead>Score</div></th>
         <th><div class=colHead>Comment</div></th>
+        <th><div class=colHead>Show</div></th>
       </tr>
-      <tr v-for="entry in entries">
+      <tr v-for="(entry,index) in entries">
         <td><div class=col>{{entry.name.S}}</div></td>
         <td><div class=col>{{entry.title.S}}</div></td>
         <td><div class=col>{{entry.total.N}}</div></td>
         <td v-if="entry.public.BOOL && entry.comment.S"><div class="col">{{entry.comment.S}}</div></td>
         <td v-else><div class="col">---</div></td>
+        <td><input type="radio" name="show" v-on:click="radioClick(index)"></input></td>
       </tr>
     </table>
-    <p v-else>No entries found</p>
+    <p v-else>Waiting for database results...</p></div>
+    <div id="leaderboardScore"><table v-if="currentEntry>=0">
+      <tr><th><span class=bold>Category</span></th><th><span class=bold>Score</span></th></tr>
+      <tr class=ones><td>Ones</td><td>{{entries[currentEntry].ones.N}}</td></tr>
+      <tr class=twos><td>Twos</td><td>{{entries[currentEntry].twos.N}}</td></tr>
+      <tr class=threes><td>Threes</td><td>{{entries[currentEntry].threes.N}}</td></tr>
+      <tr class=fours><td>Fours</td><td>{{entries[currentEntry].fours.N}}</td></tr>
+      <tr class=fives><td>Fives</td><td>{{entries[currentEntry].fives.N}}</td></tr>
+      <tr class=sixes><td>Sixes</td><td>{{entries[currentEntry].sixes.N}}</td></tr>
+      <tr class=bonus><td>Bonus</td><td>{{entries[currentEntry].bonus.N}}</td></tr>
+      <tr class=fullHouse><td>Full House</td><td>{{entries[currentEntry].full_house.N}}</td></tr>
+      <tr class=fourKind><td>Four-of-a-Kind</td><td>{{entries[currentEntry].four_kind.N}}</td></tr>
+      <tr class=littleStraight><td>Little Straight</td><td>{{entries[currentEntry].little_s.N}}</td></tr>
+      <tr class=bigStraight><td>Big Straight</td><td>{{entries[currentEntry].big_s.N}}</td></tr>
+      <tr class=choice><td>Choice</td><td>{{entries[currentEntry].choice.N}}</td></tr>
+      <tr class=yacht><td>Yacht</td><td>{{entries[currentEntry].yacht.N}}</td></tr>
+    </table><div>
+    </div>
   </div>
-  <script src="leaderboard.js" type="module"></script>
+  <script src="leaderboard.js" type="module"></script></script>
+
 </body>
 </html>
