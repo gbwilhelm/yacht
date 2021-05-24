@@ -234,3 +234,26 @@ th{
     width: 600px;
     height: 300px;
 }
+#leaderboard{
+    text-align:center;
+}
+#leaderboard h1{
+    color: var(--blue_3c);
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+#leaderboard table{
+    background-color: white;
+}
+#leaderboard .col{
+    max-width: 35ch;
+    max-height: 4.5em;
+    overflow: auto;
+    white-space:pre-wrap;
+    margin: 0.5em;
+}
+#leaderboard .colHead{
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    color: var(--blue_3c);
+}

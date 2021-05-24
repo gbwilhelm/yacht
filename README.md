@@ -39,7 +39,3 @@ Note: The AWS version source code is Yacht_AWS.java, I will not include the enti
 The remaining stages are as follows:
 1. Cleanup website css
 2. Move project to AWS
-	1. Provision EC2 server, install NGINX and node.js
-	2. Upload project .zip to S3, download on EC2
-	3. Alter code to use AIM Role and not local access keys
-	4. Use AWS Route 53 for DNS registration

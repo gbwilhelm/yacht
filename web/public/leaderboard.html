@@ -25,8 +25,14 @@
     <h1>Yacht Leaderboard</h1>
     <!--Could add functionallity that shows the player's full scorecard to right on hover-->
     <table v-if="entries.length>0">
-      <tr><th>Name</th><th>Game Title</th><th>Score</th><th>Comment</th></tr>
-      <tr v-for="entry in entries"><td>{{entry.name.S}}</td><td>{{entry.title.S}}</td><td>{{entry.total.N}}</td><td v-if="entry.public.BOOL">{{entry.comment.S}}</td><td v-else>---</td></tr>
+      <tr><th><div class="colHead">Name</div></th><th><div class="colHead">Game Title</div></th><th><div class="colHead">Score</div></th><th><div class="colHead">Comment</div></th></tr>
+      <tr v-for="entry in entries">
+        <td><div class="col">{{entry.name.S}}</div></td>
+        <td><div class="col">{{entry.title.S}}</div></td>
+        <td><div class="col">{{entry.total.N}}</div></td>
+        <td v-if="entry.public.BOOL && entry.comment.S"><div class="col">{{entry.comment.S}}</div></td>
+        <td v-else><div class="col">---</div></td>
+      </tr>
     </table>
     <p v-else>No entries found</p>
   </div>
