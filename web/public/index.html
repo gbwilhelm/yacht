@@ -62,10 +62,10 @@
     <h2>AWS Architecture</h2>
     <p>Since the Java AWS version, I began to provision and utilize AWS services.
        <br><br>I initially created a DynamoDB table using the SDK; however, the table configuration has changed many times since the initial creation.
-       The table's primary key began as an MD5 hash of the combination of the player's name, game title, and final score.
-       This configuration proved to be inefficient, since I could only access the database by scanning, and DynamoDB scans do not sort the results by the sort key.
-       To resolve this problem, I created a primary key that is a simple string that states the game version (either web or java) with a sort key for the game's score.
-       With this new composite key, I could query the web version key and receive sorted results, ready to be displayed on the leaderboard.
+       The table's current key configuration is a single primary key, which is an MD5 hash of the object containing the data fields.
+       This ensures each entry is unique, as the only time a key would match is if all data fields also match.
+       I then created a Global Secondary Index, which uses a version string as the primary key and the game's score as the sort key.
+       To fetch the top 10 scores, I query the GSI with an item limit of 10, which returns presorted.
        <br><br>I also hooked a Lambda function to my DynamoDB table stream, and it listens for INSERT operations.
        I created an SNS topic and added my email as a subscriber; I also created a Resource Group for all the services I provisioned for this project.
        The lambda function grabs some basic information from the DynamoDB INSERT event, then publishes the formatted message to the SNS topic.
