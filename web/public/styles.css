@@ -105,56 +105,19 @@ input, textarea, select{
 }
 
 /*index.html*/
+#body{
+    margin-bottom: 2em;
+}
 #body h1{
     text-align: center;
     margin-top: 0.75em;
     margin-bottom: 1em;
     color: var(--blue_3c)
 }
-/*Color palette*/
-# {
-    background-color: white;
-    display: inline-block;
-    width: 50%;
-    text-align: center;
-    height: 104px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+#body p{
+    margin-left: 25%;
+    margin-right: 25%;
 }
-#palette svg{
-    border: 2px solid black;
-    width: 100px;
-    height: 100px;
-}
-#palette rect{
-    stroke-width: 2px;
-    stroke: black;
-}
-#pal_a rect{
-    fill: var(--white);
-}
-#pal_b rect{
-    fill: var(--gray);
-}
-#pal_h rect{
-    fill: var(--blue_1c_c);
-}
-#pal_g rect{
-    fill: var(--blue_l);
-}
-#pal_c rect{
-    fill: var(--blue_b);
-}
-#pal_d rect{
-    fill: var(--blue_1c);
-}
-#pal_e rect{
-    fill: var(--blue_2c);
-}
-#pal_f rect{
-    fill: var(--blue_3c);
-}
-
 /*game.html*/
 #gameTitle h1{ /*area above game window*/
     text-align: center;

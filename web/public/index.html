@@ -22,18 +22,57 @@
   </div>
   <div id=body>
     <h1><span class=underline>Welcome to Project Yacht</span></h1>
-    <p>Explanation of project will go here</p>
-    <div id=palette>
-      <svg id=pal_a><rect width="100" height="100"/></svg>
-      <svg id=pal_b><rect width="100" height="100"/></svg>
-      <svg id=pal_h><rect width="100" height="100"/></svg>
-      <svg id=pal_g><rect width="100" height="100"/></svg>
-      <svg id=pal_c><rect width="100" height="100"/></svg>
-      <svg id=pal_d><rect width="100" height="100"/></svg>
-      <svg id=pal_e><rect width="100" height="100"/></svg>
-      <svg id=pal_f><rect width="100" height="100"/></svg>
-    </div>
-    <p>extra text</p>
+    <p>This page serves as a technical explanation for this project and its evolution.</p>
+    <h2>Java Version</h2>
+    <p>This project began as a single-file Java program that ran on the command line.
+       When ran, the program promted the user to either play Yacht or run a test script.
+       The Yacht game was fully functional, and input and output were done in the terminal.
+       <br><br>This version had a feature that allowed multiple players to play at a time.
+       In each round, each player performed their three rolls and scored in sequence.
+       At the end of the game, the player with the highest score was declared the winner.
+       This multiplayer functionality was removed in subsequent versions, as it conflicted with database interactions.
+       <br><br>This version is available in the GitHub repository as prog/Yacht.java.
+    </p>
+    <h2>Java AWS Version</h2>
+    <p>The next stage of this project was adding AWS DynamoDB functionallity to save a player's final score.
+       As this project needed build dependencies to run, it was created in Eclipse using the AWS Java SDK.
+       <br><br>Multiplayer functionallity was removed, but the basic game structure remained the same.
+       After finishing a game, the player had the option of saving the game data to the database.
+       The player could enter a username and game title, then those fields were sent to the database with the game's scorecard.
+       <br><br>The source code, but not the build files, for this version is available in the GitHub repository as prog/Yacht_AWS.java.
+    </p>
+    <h2>JavaScript Vue Version</h2>
+    <p>While the Java versions were fully functional, I wanted to port them to a public web server.
+       To start this process, I had to recreate the program from scratch using JavaSctipt, Vue, HTML, and CSS.
+       <br><br>Before working on the JavaScript version, I created a test application with basic Vue functionallity by following the official Vue documentation.
+       This practice application has since been removed from the repository, but can be viewed in earlier commits.
+       <br><br>This version turned the Java version into an interactive front-end Vue application, with I/O operations done with buttons and links.
+       The architecture of this version was a single Vue application that used a number of child components to perform both I/O operations and game logic.
+       <br><br>Since this version was entirely front-end, there was no database interation, and there is not a finalized version in the repository.
+    </p>
+    <h2>Node Local Version</h2>
+    <p>Once the game logic for the front-end version was complete, it was time to begin the back-end construction.
+       The back-end is build on a simple Node server, installed using Yarn, that runs a REST API using Express.
+       This is where the AWS JavaScript SDK is used to allow DynamoDB functionality for the project.
+       <br><br>The front-end was modified to send API requests to the back end and then waited for a response.
+       The back-end transformed the requests into DynamoDB insert and query requests, then forwarded the responses back to the front-end.
+       Unique to this version is the public leaderboard, which simply fetches and displays the top ten scores from the databse.
+       <br><br>This version is found on the Github repository under the web/ directory.
+    </p>
+    <h2>AWS Architecture</h2>
+    <p>Since the Java AWS version, I began to provision and utilize AWS services.
+       <br><br>I initially created a DynamoDB table using the SDK; however, the table configuration has changed many times since the initial creation.
+       The table's primary key began as an MD5 hash of the combination of the player's name, game title, and final score.
+       This configuration proved to be inefficient, since I could only access the database by scanning, and DynamoDB scans do not sort the results by the sort key.
+       To resolve this problem, I created a primary key that is a simple string that states the game version (either web or java) with a sort key for the game's score.
+       With this new composite key, I could query the web version key and recieve sorted rsults, ready to be displayed on the leaderboard.
+       <br><br>I also hooked a Lambda function to my DynamoDB table stream, and it listens for INSERT operations.
+       I created an SNS topic and added my email as a subscriber; I also created a Resource Group for all the services I provisioned for this project.
+       The lambda function grabs some basic information from the DynamoDB INSERT event, then publishes the formatted message to the SNS topic.
+       As such, I receive an email whenever anyone saves their game to my database.
+       <br><br>Fragments of my DynamoDB table configuration and its changes can be infered from my SDK function calls across various commits.
+       <br><br>My Lambda function source code has been incuded in the GitHub repository as prog/Lambda_Function.py.
+   </p>
   </div>
 </body>
 </html>
