@@ -2,7 +2,9 @@
 
 This project aims to refresh my Java and JavaScript programming skills and gain AWS experience by recreating the classic dice game, Yacht, and deploying it using AWS infrastructure. A more detailed explanation of this project can be found on the web version's homepage. The full source code for this project is public; however, AWS functionality requires my access credentials, which are obviously not included.
 
-_When I host the web server, the link will be included here._
+The web version is currently hosted at http://ec2-54-221-87-221.compute-1.amazonaws.com:8080/leaderboard.html
+
+I plan on adding https support to the project, listing a more human-readable DNS name, and fixing the styling.
 
 The structure of this repository is as follows:
 
