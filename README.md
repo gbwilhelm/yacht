@@ -4,7 +4,7 @@ This project aims to refresh my Java and JavaScript programming skills and gain 
 
 The web version is currently hosted at http://ec2-54-221-87-221.compute-1.amazonaws.com:8080/leaderboard.html
 
-I plan on adding https support to the project, listing a more human-readable DNS name, and fixing the styling.
+I plan on adding https support to the project and fixing the styling. Since the scope of this project is small and the cost of DNS hosting is high, I do not plan on registering a new domain name.
 
 The structure of this repository is as follows:
 
