@@ -20,7 +20,11 @@ var app = new Vue({
     //only fetch from databse once, when app has finished loading
     this.$nextTick(async function () {
       let response = await this.fetchData()
-      this.entries = [...JSON.parse(response.response)]
+      if(response.status!=200){
+        window.alert("Request failed with HTTP status code "+response.status)
+      }else{
+        this.entries = [...JSON.parse(response.response)]
+      }
     })
   }
 })
