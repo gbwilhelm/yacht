@@ -200,7 +200,7 @@ Vue.component('score-calculator',{
         if(++this.numericScored===6){
           //check for bonus
           if(this.scores[0]+this.scores[1]+this.scores[2]+this.scores[3]+this.scores[4]+this.scores[5]>62){
-            this.choice = this.allCategories[6]
+            this.choice = this.allCategories[6]; this.choice.score=35
           }else{
             this.choice = this.allCategories[6]; this.choice.score=0
           }
