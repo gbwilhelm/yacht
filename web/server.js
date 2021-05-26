@@ -1,5 +1,6 @@
 const express = require("express")
 const bodyParser = require("body-parser")
+const md5 = require("md5")
 const aws = require("aws-sdk")
 
 const VERBOSE = false //toggles logging
@@ -9,7 +10,9 @@ const ddb = new aws.DynamoDB({apiVersion: '2012-08-10'});
 
 const fetchLeaderboard = async function(){
   if(VERBOSE)console.log("sending query...")
-  const params = {TableName:"project-yacht",Limit:"10",KeyConditionExpression:"#v = :v",ScanIndexForward:false,
+  //Access Global Secondary index with Key (version,total)
+  const params = {TableName:"project-yacht",IndexName:"version-total-index",
+                  Limit:"10",KeyConditionExpression:"#v = :v",ScanIndexForward:false,
                   ExpressionAttributeNames:{"#v":"version"},ExpressionAttributeValues:{":v":{S:"web"}}}
   const run = async () => {
     try{
@@ -27,8 +30,9 @@ const fetchLeaderboard = async function(){
 const writeTable = async function(data){
   if(VERBOSE)console.log("preparing to write to database...")
   //all numeric data fields must be strings
+  //Primary key is MD5 hash of entire data object string
   const params = {TableName: 'project-yacht',
-                  Item:{'version':{S:'web'},'title':{S:data.title},'name':{S:data.name},'total':{N:data.total.toString()},
+                  Item:{'key':{B:md5(JSON.stringify(data))},'version':{S:'web'},'title':{S:data.title},'name':{S:data.name},'total':{N:data.total.toString()},
                     'ones':{N:data.scores[0].toString()},'twos':{N:data.scores[1].toString()},'threes':{N:data.scores[2].toString()},
                     'fours':{N:data.scores[3].toString()},'fives':{N:data.scores[4].toString()},'sixes':{N:data.scores[5].toString()},
                     'bonus':{N:data.scores[6].toString()},'full_house':{N:data.scores[7].toString()},'four_kind':{N:data.scores[8].toString()},

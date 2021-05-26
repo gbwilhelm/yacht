@@ -1,12 +1,12 @@
 # Install Yarn and dependencies
 
-npm install yarn
-
-yarn install
+yarn install should install the dependencies, alternatively run the following
 
 yarn add express
 
 yarn add body-parser
+
+yarn add md5
 
 yarn add aws-sdk
 
