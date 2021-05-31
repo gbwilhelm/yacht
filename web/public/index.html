@@ -70,8 +70,12 @@
        I created an SNS topic and added my email as a subscriber; I also created a Resource Group for all the services I provisioned for this project.
        The lambda function grabs some basic information from the DynamoDB INSERT event, then publishes the formatted message to the SNS topic.
        As such, I receive an email whenever anyone saves their game to my database.
-       <br><br>Fragments of my DynamoDB table configuration and its changes can be inferred from my SDK function calls across various commits.
-       <br><br>My Lambda function source code has been included in the GitHub repository as prog/Lambda_Function.py.
+       The Lambda function source code has been included in the GitHub repository as prog/Lambda_Function.py.
+       <br><br>The server currently runs on an EC2 t2.micro instance running Ubuntu 20.
+       Since I expect little load on my server, it is not using an Auto Scaling Group or Load Balancer.
+       My server uses a modified version of the github source code, where local file paths have been changed to absolute file paths.
+       I run my server through Forever as a cron job, which ensures uptime after a crash or system reboot.
+       As with my Lambda function, I enable permissions via IAM Roles with AWS Managed Policies.
    </p>
   </div>
 </body>
