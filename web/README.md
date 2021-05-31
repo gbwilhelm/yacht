@@ -2,9 +2,9 @@
 
 openssl req -nodes -new -x509 -keyout server.key -out server.cert
 
-Note that this will cause a browser warning because it is self-signed. I will simply replace the cert files with a signed one later.
+The server is configured to look for the server.key and server.cert files in a directory called cert, placed within this project's web directory.
 
-# Install Yarn and dependencies
+# Install Dependencies via Yarn
 
 yarn install
 
@@ -12,8 +12,4 @@ yarn install
 
 npm start or node server.js
 
-On actual web server, the server will run as a Linux service using Forever.js
-
-# Note
-
-If running locally, use localhost in browser to navigate pages instead of running local .html files, as this prevents a CORS error when using back-end functionality. One must also place an SSL certificate in a directory called cert with the files server.key and server.cert in order to run https.
+On actual web server, the server runs as a reboot cron job using Forever.
