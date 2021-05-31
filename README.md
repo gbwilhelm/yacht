@@ -18,7 +18,7 @@ The structure of this repository is as follows:
 
 # prog/
 
-* prog/ contains my original Java version of this game that runs on the terminal, an AWS SDK project Java file that hooks the game up to my database, and my AWS Lambda Python script that sends me an email whenever my database is written to.
+* prog/ contains my original Java version of this game that runs on the terminal, an AWS SDK project Java file that hooks the game up to my database, and my AWS Lambda Python scripts.
 * The file Yacht.java can be run as-is; however, Yacht_AWS.java needs dependencies and credentials that are not included in this repository.
 
 # web/
