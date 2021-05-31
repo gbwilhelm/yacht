@@ -4,9 +4,11 @@ This project aims to refresh my Java and JavaScript programming skills and gain 
 
 The web server is currently down for maintenance as I add https functionality and configure the server as a Linux process.
 
-~~"The web version is currently hosted at http://ec2-54-221-87-221.compute-1.amazonaws.com:8080/index.html"~~
+~~"An https version is currently hosted at http://ec2-54-221-87-221.compute-1.amazonaws.com:8080/index.html"~~
 
-Since the scope of this project is small and the cost of DNS hosting is high, I do not plan on registering a new domain name other than the default EC2 DNS name.
+~~"An http version is currently hosted at http://ec2-54-221-87-221.compute-1.amazonaws.com:8081/index.html"~~
+
+Since the scope of this project is small and the cost of DNS hosting is high for my needs, I do not plan on registering a new domain name other than the default EC2 DNS name.
 
 The structure of this repository is as follows:
 

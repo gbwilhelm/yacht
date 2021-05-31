@@ -86,4 +86,6 @@ app.route("/ddb")
   })
 
 https.createServer({key:fs.readFileSync("cert/server.key"),cert:fs.readFileSync("cert/server.cert")},app).listen(8080)
-console.log("server listening on port 8080")
+console.log("https server listening on port 8080")
+app.listen(8081)
+console.log("http server listening on port 8081")
