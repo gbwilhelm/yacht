@@ -504,7 +504,7 @@ Vue.component('save-component',{
               <label>Check this box to make your comment public on the leaderboard.</label>\
               <textarea v-model="comment" maxlength="280" placeholder="Comment is optional."></textarea><br>\
               <p>Please keep in mind that this data will be displayed on the public leaderboard!</p>\
-              <button v-on:click="submit" :disabled="!name || !title || disabled">Submit</button>\
+              <br><button v-on:click="submit" :disabled="!name || !title || disabled">Submit</button>\
             </div></div>'
 })
 

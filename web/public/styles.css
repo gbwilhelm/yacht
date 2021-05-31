@@ -231,8 +231,8 @@ input, textarea, select{
     padding-bottom: 0.1em;
 }
 #gameResults p{
-    margin-left: 30em;
-    margin-right: 30em;
+    margin-left: 20em;
+    margin-right: 20em;
 }
 #gameResults button{
     margin-left: 0.5em;
@@ -311,7 +311,7 @@ th{
 }
 #leaderboardTop10{
     float:left;
-    margin-left: 20%;
+    margin-left: 10%;
 }
 #leaderboardTables{
 }

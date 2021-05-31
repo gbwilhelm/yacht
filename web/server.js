@@ -2,6 +2,8 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const md5 = require("md5")
 const aws = require("aws-sdk")
+const https = require("https")
+const fs = require("fs")
 
 const VERBOSE = false //toggles logging
 
@@ -83,5 +85,5 @@ app.route("/ddb")
     }
   })
 
-app.listen(8080) //run server, access via ip:port
+https.createServer({key:fs.readFileSync("cert/server.key"),cert:fs.readFileSync("cert/server.cert")},app).listen(8080)
 console.log("server listening on port 8080")
