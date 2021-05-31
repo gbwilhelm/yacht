@@ -4,6 +4,8 @@ This project aims to refresh my Java and JavaScript programming skills and gain 
 
 To set up my web server over SSH, I cloned my git repository, then copied the web directory to a local workspace. I needed to modify the filepaths in my server.js to use absolute paths instead of local paths, and I did not want to track these changes with git or open a different branch. I edited the crontab of my VM to run my server with the @reboot hook; this is why I needed to use absolute filepaths. Instead of running my server via node, I installed and run my server via Forever, which should relaunch my server if it ever crashes.
 
+In order to save on cost, the server is only available from 5:30-6:30 pm EDT Monday-Friday for June 2021. This was achieved via a custom CloudWatch event that triggers lambda functions to start and stop my EC2 instance in the specified time range.
+
 An https version is currently hosted at https://ec2-54-221-87-221.compute-1.amazonaws.com:8080/index.html
 
 An http version is currently hosted at http://ec2-54-221-87-221.compute-1.amazonaws.com:8081/index.html
