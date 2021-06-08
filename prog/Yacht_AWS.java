@@ -24,11 +24,11 @@ import java.security.MessageDigest;
 public class Yacht{
     private Random rand = new Random();
     private Scanner scanner = new Scanner(System.in);
-
+    
     static AmazonDynamoDB dynamoDB;
 
-    static boolean DEBUG_MODE = true;
-
+    static boolean DEBUG_MODE = false;  
+    
     private enum e_categories{
         Ones,Twos,Threes,Fours,Fives,Sixes,Bonus,Full_House,Four_of_a_Kind,Little_Straight,Big_Straight,Choice,Yacht
     }
@@ -68,7 +68,7 @@ public class Yacht{
                 while(rollCount<3){
                     for(Dice d:dice){
                         if(d.toRoll){d.value = rand.nextInt(6)+1;}
-                    }
+                    }                 
                     ++rollCount;
                     System.out.print("Roll "+rollCount+". ");printDice(dice,false);
                     if(rollCount<3 && !chooseDice(dice))break; //don't reroll if all dice are kept, cannot choose on last roll
@@ -87,7 +87,7 @@ public class Yacht{
                         categories[a]=(scores[a]<0);
                     }
                 }
-                //display available categories
+                //display available categories               
                 for(Enum e: e_categories.values()){
                     if(categories[e.ordinal()]){
                         System.out.println("\tOption "+(e.ordinal()+1)+": "+e.name());
@@ -134,7 +134,9 @@ public class Yacht{
             credentialsProvider.getCredentials();
         } catch (Exception e) {
             throw new AmazonClientException(
-                    "Cannot load the credentials from the credential profiles file. ",
+                    "Cannot load the credentials from the credential profiles file. " +
+                    "Please make sure that your credentials file is at the correct " +
+                    "location (C:\\Users\\garre\\.aws\\credentials), and is in valid format.",
                     e);
         }
         dynamoDB = AmazonDynamoDBClientBuilder.standard()
@@ -142,18 +144,18 @@ public class Yacht{
             .withRegion("us-east-1")
             .build();
     }
-
+    
     //write game data to database
     private void saveToDatabase(String name, String title, int[] scores, int total){
         System.out.println("Saving score for Player:"+name+" as Game:"+title+"...");
         try {
         	initDatabaseObject();
-
-	        String tableName = "project-yacht";
-
+        	
+	        String tableName = "yacht-scores";
+	        
 	        // wait for the table to move into ACTIVE state
 	        TableUtils.waitUntilActive(dynamoDB, tableName);
-
+	            
 	        // Add an item
 	        Map<String, AttributeValue> item = newItem(title, name, scores, total);
 	        PutItemRequest putItemRequest = new PutItemRequest(tableName, item);
@@ -164,12 +166,15 @@ public class Yacht{
         }
         System.out.println("\tSaving complete!");
     }
-
+    
     //modified AWS snippet for helper data structure
     private static Map<String, AttributeValue> newItem(String title, String name, int[] scores, int total) throws Exception{
         Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
-				//no comment on java version
-        item.put("key", new AttributeValue("java"));
+        
+        //use MD5 hash of game title with player name and score as database key, this should allow for multiple entries with the same game name
+        ByteBuffer hash = ByteBuffer.wrap(MessageDigest.getInstance("MD5").digest((title+name+total).getBytes()));
+        
+        item.put("key", new AttributeValue().withB(hash.asReadOnlyBuffer()));
         item.put("title", new AttributeValue(title));
         item.put("name", new AttributeValue(name));
         item.put("total", new AttributeValue().withN(Integer.toString(total)));
@@ -249,7 +254,7 @@ public class Yacht{
                 if(!dice[in-1].fixed)dice[in-1].toRoll^=true;
             }
         }
-
+        
         for(Dice d:dice){
             if(d.toRoll){
                 reroll= true;
@@ -286,7 +291,7 @@ public class Yacht{
                 }else{
                     if(second==-1 && d!=first){
                         second=d; secondCount++;
-                    }else{
+                    }else{ 
                         if(d != first && d != second){ //third number detected
                             break;
                         }
@@ -299,7 +304,7 @@ public class Yacht{
         }
         //four-of-a-kind
         if(scores[8]<0){
-            int primary; //primary is a double match
+            int primary; //primary is a double match       
             if(dice[0]==dice[1]){
                 primary = dice[0];
             }if(dice[0]==dice[2]){
@@ -328,7 +333,7 @@ public class Yacht{
                 }
             }
         }
-
+        
         Arrays.sort(dice);
         //little straight
         if(scores[9]<0){
@@ -376,7 +381,7 @@ public class Yacht{
     }
 
     //computes the score of a given category and dice rolls
-    private int calculateRollScore(int category,int[] dice){
+    public int calculateRollScore(int category,int[] dice){
         int score=0;
         switch(category){
             case 0: //ones
@@ -411,7 +416,7 @@ public class Yacht{
                 }break;
             case 12://yacht
                 score=50;break;
-
+                
         }
         return score;
     }
@@ -436,7 +441,7 @@ public class Yacht{
             int subtotal=0;
             for(int i=0; i<6; i++){
                 if(scores[i]<0)return; //short-circuit when scoring is incomplete
-                subtotal+=scores[i];
+                subtotal+=scores[i];               
             }
             if(subtotal>62){
                 scores[6]=30;
@@ -480,175 +485,21 @@ public class Yacht{
 
     public static void main(String[] args){
         Yacht yacht = new Yacht();
-        System.out.println("Welcome to Yacht, the dice game!\nWould you like to play the game, or run unit tests?"
-                                +"\n\t1. Play Game\n\t2. Run Tests");
+        System.out.println("Welcome to Yacht, the dice game!\nWould you like to play the game?"
+                                +"\n\t1. Play Game");
         if(yacht.getInput(1,2)==1){
             yacht.playGame();
-        }else{
-            UnitTests tester = yacht.new UnitTests();
-            tester.testCategoryDetection();
         }
+    }
+    
+    public boolean[] testRollOptions(int[] dice, int[] scores) {
+    	return calculateRollOptions(dice,scores);
     }
 //--------------------------------------------------------------------------------
     //value-flag pair wrapper
-    private class Dice{
+    private class Dice{ 
         public int value;
         public boolean toRoll;
         public boolean fixed;
-    }
-
-    private class UnitTests{
-        //PASS: result matched expected
-        //FAIL: result did not match expected for specific category
-        //FAILED OTHER CATEGORY: result matched expected in the specific category, but not 100% match
-            //unfortunately does not explain which other category failed - beyond scope of project
-        private void testCategoryDetection(){
-            int[] dice;
-            boolean[] expected,result;
-            int[] scores = new int[13];
-            for(int i=0; i<scores.length; i++){
-                scores[i]=-1;
-            }
-
-            //Full House
-            expected = new boolean[] {true,false,false,true,false,false, false, true,false,false,false,true,false};
-            System.out.println("Testing Full House Detection (Same Expected Set)");
-                System.out.print("\tTest Array: [1,1,1,4,4]");
-                    dice = new int[]{1,1,1,4,4}; //sorted 3-2
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[7])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [1,4,1,1,4]");
-                    dice = new int[]{1,4,1,1,4}; //randomized
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[7])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [1,4,1,4,1]");
-                    dice = new int[]{1,4,1,4,1}; //randomized
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[7])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [4,4,1,1,1]");
-                    dice = new int[]{4,4,1,1,1}; //sorted 2-3
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[7])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-
-            //Yacht
-            System.out.println("Testing Yacht Detection, Contains Four-of-a-Kind");
-                System.out.print("\tTest Array: [2,2,2,2,2]");
-                    expected = new boolean[] {false,true,false,false,false,false, false, false,true,false,false,true,true};
-                    dice = new int[]{2,2,2,2,2}; //2s
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[12])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [5,5,5,5,5]");
-                    expected = new boolean[] {false,false,false,false,true,false, false, false,true,false,false,true,true};
-                    dice = new int[]{5,5,5,5,5}; //5s
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[12])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-            //Four-of-a-Kind, 4 matches
-            System.out.println("Testing Four-of-a-Kind Detection");
-                System.out.print("\tTest Array: [6,5,5,5,5]");
-                    expected = new boolean[] {false,false,false,false,true,true, false, false,true,false,false,true,false};
-                    dice = new int[]{6,5,5,5,5}; //sorted 1-4
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[8])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [4,4,4,4,1]");
-                    expected = new boolean[] {true,false,false,true,false,false, false, false,true,false,false,true,false};
-                    dice = new int[]{4,4,4,4,1}; //sorted 4-1
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[8])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [2,2,2,3,2]");
-                    expected = new boolean[] {false,true,true,false,false,false, false, false,true,false,false,true,false};
-                    dice = new int[]{2,2,2,3,2}; //mixed
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[8])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-            //Little Straight
-            expected = new boolean[] {true,true,true,true,true,false, false, false,false,true,false,true,false};
-            System.out.println("Testing Little Straight Detection (Same Expected Set)");
-                System.out.print("\tTest Array: [1,2,3,4,5]");
-                    dice = new int[]{1,2,3,4,5}; //sorted
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[9])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [5,4,3,2,1]");
-                    dice = new int[]{5,4,3,2,1}; //reverse sorted
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[9])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [2,4,1,5,3]");
-                    dice = new int[]{2,4,1,5,3}; //randomized
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[9])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-            //Big Straight
-            expected = new boolean[] {false,true,true,true,true,true, false, false,false,false,true,true,false};
-            System.out.println("Testing Big Straight Detection (Same Expected Set)");
-                System.out.print("\tTest Array: [2,3,4,5,6]");
-                    dice = new int[]{2,3,4,5,6}; //sorted
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[10])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [6,5,4,3,2]");
-                    dice = new int[]{6,5,4,3,2}; //reverse sorted
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[10])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-                System.out.print("\tTest Array: [2,4,6,5,3]");
-                    dice = new int[]{2,4,6,5,3}; //randomized
-                    result = calculateRollOptions(dice, scores);
-                    if(Arrays.equals(expected,result)){System.out.println("\tPASS");}else{
-                        System.out.print("\tFAIL");
-                        if(result[10])System.out.print("ED OTHER CATEGORY");
-                        System.out.println();
-                    }
-        }
     }
 }
